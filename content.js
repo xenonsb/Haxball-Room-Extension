@@ -266,7 +266,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 					if (items.haxKickBanConfig) {
 						var gameframe = document.getElementsByClassName('gameframe')[0];
 						var players = gameframe.contentWindow.document.querySelectorAll('[class^=player-list-item]');
-						var adminStatus = (gameframe.contentWindow.document.querySelector("[class$='view admin']") !== null) || tempView.endsWith('admin');
+						var adminStatus = (gameframe.contentWindow.document.querySelector("[class$='view admin']") !== null);
 						players.forEach(x => checkForButtons(x, adminStatus));
 					}
 				});
