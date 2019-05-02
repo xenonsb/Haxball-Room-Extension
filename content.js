@@ -52,7 +52,7 @@ function createSearch(){
 	var input = document.createElement('input'); 
 	input.type = "search"; 
 	input.id = "searchRoom";
-	chrome.storage.local.get('haxRoomSearchTerm', function(result) {
+	chrome.storage.local.get({'haxRoomSearchTerm': ''}, function(result) {
 		input.value = result.haxRoomSearchTerm;
 		console.log(input.value);
 		refreshButton.click();
