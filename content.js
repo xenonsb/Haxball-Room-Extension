@@ -102,6 +102,7 @@ function searchForRoom() {
     }
     var roomsStats = dialog.querySelectorAll("[data-hook='count']")[0];
     roomsStats.innerHTML = totalNumberOfPlayers + " players in "+totalNumberOfRooms+" filtered rooms";
+    dialog.querySelector("[data-hook='listscroll']").scrollTo(0,0);
 }
 
 // autoJoin by xenon
