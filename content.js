@@ -240,7 +240,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				
 				chrome.storage.local.get({'haxSearchConfig' : true,
 										  'haxAutoJoinConfig' : true,
-										  'haxKickBanConfig' : true},
+										  'haxKickBanConfig' : false},
 										  function(items) { 
 											searchConfig.checked = items.haxSearchConfig;
 											autoJoinConfig.checked = items.haxAutoJoinConfig;
