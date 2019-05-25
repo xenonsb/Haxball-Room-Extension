@@ -4,6 +4,8 @@
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
+**New in version 0.1.4**: local mute function! Now you can mute a player's messages from the chatbox by right clicking on the player in the room view :)
+
 | ![](/screenshots/ss1.png) |
 | :--: |
 | What you should see on the login screen - if not, press CTRL + F5 |
@@ -25,3 +27,9 @@ Haxball All-in-one Tool adds a few time-saving features to the existing HTML5 ve
 | ![](/screenshots/ss3.png) |
 | :--: |
 | One-click buttons to [K]ick and [B]an - usable for room admins only! |
+
+**✓ Local mute**: don't want to see a certain player's messages? Simply right click their name and press the mute button!
+
+| ![](/screenshots/ss4.png) |
+| :--: |
+| Local mute button - right click a player to mute them from chat! |
