@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Haxball All-in-one Tool",
-    "version": "0.1.4",
+    "version": "0.1.5",
 	"author": "xenon",
 	"description": "Tools for searching rooms, auto refreshing and joining rooms, and admin kick/ban shortcuts",
     "content_scripts": [

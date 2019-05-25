@@ -227,7 +227,7 @@ chatObserver = new MutationObserver(function(mutations) {
 	var candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.tagName == 'P');
 	candidates.forEach(x => console.log(x.innerText));
 	chatCheck = function(chatLine) {
-		if ([...muted].filter(x => chatLine.innerText.startsWith(x)).length > 0) {
+		if ([...muted].filter(x => chatLine.innerText.startsWith(x + ': ')).length > 0) {
 			chatLine.hidden = true;
 		}
 	}
