@@ -212,6 +212,28 @@ function checkForButtons(x, admin) {
 	}
 }
 
+// chat observer for mute
+muted = new Set();
+function mutePlayer(name) {
+	if (muted.has(name)) {
+		muted.delete(name);
+	}
+	else {
+		muted.add(name);
+	}
+}
+
+chatObserver = new MutationObserver(function(mutations) {
+	var candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.tagName == 'P');
+	candidates.forEach(x => console.log(x.innerText));
+	chatCheck = function(chatLine) {
+		if ([...muted].filter(x => chatLine.innerText.startsWith(x)).length > 0) {
+			chatLine.hidden = true;
+		}
+	}
+	candidates.forEach(x => chatCheck(x));
+})
+
 // main observer to detect changes to views
 moduleObserver = new MutationObserver(function(mutations) {
 	candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.className);
@@ -239,18 +261,27 @@ moduleObserver = new MutationObserver(function(mutations) {
 				kickBanConfig.id = 'haxKickBanConfig';
 				kickBanConfig.onclick = function () { toggleScript(this); }
 				
+				var muteConfig = document.createElement('input');
+				muteConfig.type = 'checkbox';
+				muteConfig.id = 'haxMuteConfig';
+				muteConfig.onclick = function () { toggleScript(this); }
+				
 				chrome.storage.local.get({'haxSearchConfig' : true,
 										  'haxAutoJoinConfig' : true,
-										  'haxKickBanConfig' : false},
+										  'haxKickBanConfig' : false,
+										  'haxMuteConfig' : true},
 										  function(items) { 
 											searchConfig.checked = items.haxSearchConfig;
 											autoJoinConfig.checked = items.haxAutoJoinConfig;
 											kickBanConfig.checked = items.haxKickBanConfig;
+											muteConfig.checked = items.haxMuteConfig;
 				});
 				
 				copyright.append(document.createElement('br'), searchConfig, 'Search Bar by Raamyy and xenon',
 								 document.createElement('br'), autoJoinConfig, 'Room AutoJoin by xenon',
-								 document.createElement('br'), kickBanConfig, 'Room Kick/Ban shortcuts by xenon');
+								 document.createElement('br'), kickBanConfig, 'Room Kick/Ban shortcuts by xenon',
+								 document.createElement('br'), muteConfig,
+								 'Local mute by xenon');
 				el.contentWindow.document.querySelector('h1').parentNode.appendChild(copyright);
 				break;
 			case tempView == "roomlist-view":
@@ -261,9 +292,47 @@ moduleObserver = new MutationObserver(function(mutations) {
 					if (items.haxAutoJoinConfig) { createButton(); }
 				});
 				break;
+			case tempView == "game-view":
+				muted = new Set();
+				chatWait = waitForElement('[data-hook="log"]');
+				chatWait.then(function (chatArea) {
+					chatObserver.observe(chatArea, {childList: true, subtree: true});
+				})
+				break;
+			case tempView == "dialog":
+				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
+					if (items.haxMuteConfig) {
+						var popupWait = waitForElement('div.dialog');
+						popupWait.then(function (popup) {
+							var name = popup.firstChild.innerText;
+							var muteBtn = document.createElement('button');
+							muteBtn.className = 'mb';
+							popup.insertBefore(muteBtn, popup.lastChild);
+							if (muted.has(name)) {
+								muteBtn.innerText = 'Unmute';
+							}
+							else {
+								muteBtn.innerText = 'Mute';
+							}
+							muteBtn.onclick = function () { 
+								if (muted.has(name)) {
+									console.log(muted);
+									muted.delete(name);
+									muteBtn.innerText = 'Mute';
+									console.log(muted);
+									}
+								else {
+									console.log(muted);
+									muted.add(name);
+									muteBtn.innerText = 'Unmute';
+									console.log(muted);
+									}
+							}
+						});}})
+				break;
 			case Boolean(tempView.match(/^(room-view|player-list-item|notice)/)):
 				// early exit
-				chrome.storage.local.get({'haxKickBanConfig' : true}, function (items) {
+				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
 					if (items.haxKickBanConfig) {
 						var gameframe = document.getElementsByClassName('gameframe')[0];
 						var players = gameframe.contentWindow.document.querySelectorAll('[class^=player-list-item]');
