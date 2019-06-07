@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
     "name": "Haxball All-in-one Tool",
-    "version": "0.1.5",
+    "version": "0.1.6",
 	"author": "xenon",
-	"description": "Tools for searching rooms, auto refreshing and joining rooms, and admin kick/ban shortcuts",
+	"description": "Tools for searching rooms, auto refreshing and joining rooms, admin kick/ban shortcuts, and local-muting of other players",
     "content_scripts": [
       {
         "matches": [
@@ -13,7 +13,12 @@
 		"run_at": "document_idle"
       }
     ],
+	"background": {
+		"scripts" : ["background.js"],
+		"persistent" : true
+	},
 	"permissions": [
-          "storage"
+          "notifications",
+		  "storage"		  
         ]
   }

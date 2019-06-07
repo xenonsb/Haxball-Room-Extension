@@ -1,5 +1,6 @@
 // attach to initial iFrame load
 var el = document.getElementsByClassName("gameframe")[0];
+var myNick;
 
 // wait until the game in iFrame loads, then continue
 function waitForElement(selector) {
@@ -92,11 +93,12 @@ function searchForRoom() {
         var roomName = room.querySelectorAll("[data-hook='name']")[0].innerHTML;
         var roomNumPlayers = room.querySelectorAll("[data-hook='players']")[0].innerHTML.split('/')[0];
         roomName = roomName.toLowerCase();
-
-    if(roomName.includes(searchRoom) || roomName.replace(/\s/g,'').includes(searchRoom)) {
-        room.hidden = false;
-        totalNumberOfPlayers += parseInt(roomNumPlayers);
-        totalNumberOfRooms++;
+	
+		var searchTerms = searchRoom.split('+').filter(x => x != '');
+		if (searchTerms.some(x => roomName.includes(x) || roomName.replace(/\s/g,'').includes(x)) || searchRoom == '') {
+			room.hidden = false;
+			totalNumberOfPlayers += parseInt(roomNumPlayers);
+			totalNumberOfRooms++;
         }
     else { room.hidden = true; }
     }
@@ -243,6 +245,12 @@ moduleObserver = new MutationObserver(function(mutations) {
 		switch(true) {
 			case tempView == "choose-nickname-view":
 				console.log('choose nickname view');
+				nickWait = waitForElement('[data-hook="input"]');
+				nickWait.then(function(nicknameInput) { 
+					myNick = nicknameInput.value;
+					console.log(myNick);
+					})
+				
 				var copyright = document.createElement('p');
 				copyright.innerHTML = 'Script version ' + chrome.runtime.getManifest().version;
 				
@@ -340,6 +348,28 @@ moduleObserver = new MutationObserver(function(mutations) {
 						players.forEach(x => checkForButtons(x, adminStatus));
 					}
 				});
+				
+			// notification funstuff begins!	
+				var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
+								message: 'You were moved into a team', iconUrl: 'icon.png'};
+				if (tempView.match(/^(player-list-item)/)) {
+					playersMoved = mutations.filter(x => x.addedNodes.length > 0 && x.target.parentNode.className.match(/[blue|red]$/));
+					if (playersMoved.flatMap(x => Array.from(x.addedNodes)).map(x => x.childNodes[1].innerText).includes(myNick)) {
+						chrome.runtime.sendMessage({type: 'team', opt: notifOpt});
+						}
+					}
+				if (tempView == 'notice') {
+					var noticeMsgs = mutations.flatMap(x => Array.from(x.addedNodes)).map(x => x.innerText);
+					if (noticeMsgs.filter(x => x.startsWith(myNick + ' was moved')).length > 0) {
+						chrome.runtime.sendMessage({type: 'team', opt: notifOpt});
+					}
+				}
+				break;
+			case tempView == 'highlight':
+				var highlightMsg = candidates[0].innerText;
+				var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
+								message: highlightMsg, iconUrl: 'icon.png'};
+				chrome.runtime.sendMessage({type: 'highlight', opt: notifOpt});
 				break;
 			}	
 		}
