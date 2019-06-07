@@ -36,4 +36,4 @@ Haxball All-in-one Tool adds a few time-saving features to the existing HTML5 ve
 | :--: |
 | Local mute button - right click a player to mute them from chat! |
 
-**✓ (Beta)* Notification when you're moved into a team**: forgot to check the Haxball tab? You'll get a desktop notification when you are moved into a team. Be aware that this is still a beta function!
+**✓ (Beta) Notification when you're moved into a team**: forgot to check the Haxball tab? You'll get a desktop notification when you are moved into a team. Be aware that this is still a beta function!
