@@ -274,22 +274,31 @@ moduleObserver = new MutationObserver(function(mutations) {
 				muteConfig.id = 'haxMuteConfig';
 				muteConfig.onclick = function () { toggleScript(this); }
 				
+				var notifConfig = document.createElement('input');
+				notifConfig.type = 'checkbox';
+				notifConfig.id = 'haxNotifConfig';
+				notifConfig.onclick = function () { toggleScript(this); }
+				
 				chrome.storage.local.get({'haxSearchConfig' : true,
 										  'haxAutoJoinConfig' : true,
 										  'haxKickBanConfig' : false,
-										  'haxMuteConfig' : true},
+										  'haxMuteConfig' : true,
+										  'haxNotifConfig' : false},
 										  function(items) { 
 											searchConfig.checked = items.haxSearchConfig;
 											autoJoinConfig.checked = items.haxAutoJoinConfig;
 											kickBanConfig.checked = items.haxKickBanConfig;
 											muteConfig.checked = items.haxMuteConfig;
+											notifConfig.checked = items.haxNotifConfig;
 				});
 				
 				copyright.append(document.createElement('br'), searchConfig, 'Search Bar by Raamyy and xenon',
 								 document.createElement('br'), autoJoinConfig, 'Room AutoJoin by xenon',
 								 document.createElement('br'), kickBanConfig, 'Room Kick/Ban shortcuts by xenon',
 								 document.createElement('br'), muteConfig,
-								 'Local mute by xenon');
+								 'Local mute by xenon',
+								 document.createElement('br'), notifConfig,
+								 'Game notifications by xenon');
 				el.contentWindow.document.querySelector('h1').parentNode.appendChild(copyright);
 				break;
 			case tempView == "roomlist-view":
@@ -350,26 +359,32 @@ moduleObserver = new MutationObserver(function(mutations) {
 				});
 				
 			// notification funstuff begins!	
-				var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
-								message: 'You were moved into a team', iconUrl: 'icon.png'};
-				if (tempView.match(/^(player-list-item)/)) {
-					playersMoved = mutations.filter(x => x.addedNodes.length > 0 && x.target.parentNode.className.match(/[blue|red]$/));
-					if (playersMoved.flatMap(x => Array.from(x.addedNodes)).map(x => x.childNodes[1].innerText).includes(myNick)) {
-						chrome.runtime.sendMessage({type: 'team', opt: notifOpt});
+				chrome.storage.local.get({'haxNotifConfig' : false}, function (items) {
+					if (items.haxNotifConfig) {
+						var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
+										message: 'You were moved into a team', iconUrl: 'icon.png'};
+						if (tempView.match(/^(player-list-item)/)) {
+							playersMoved = mutations.filter(x => x.addedNodes.length > 0 && x.target.parentNode.className.match(/[blue|red]$/));
+							if (playersMoved.flatMap(x => Array.from(x.addedNodes)).map(x => x.childNodes[1].innerText).includes(myNick)) {
+								chrome.runtime.sendMessage({type: 'team', opt: notifOpt});
+								}
+							}
+						if (tempView == 'notice') {
+							var noticeMsgs = mutations.flatMap(x => Array.from(x.addedNodes)).map(x => x.innerText);
+							if (noticeMsgs.filter(x => x.startsWith(myNick + ' was moved')).length > 0) {
+								chrome.runtime.sendMessage({type: 'team', opt: notifOpt});
+							}
 						}
-					}
-				if (tempView == 'notice') {
-					var noticeMsgs = mutations.flatMap(x => Array.from(x.addedNodes)).map(x => x.innerText);
-					if (noticeMsgs.filter(x => x.startsWith(myNick + ' was moved')).length > 0) {
-						chrome.runtime.sendMessage({type: 'team', opt: notifOpt});
-					}
-				}
+				}});
 				break;
 			case tempView == 'highlight':
-				var highlightMsg = candidates[0].innerText;
-				var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
-								message: highlightMsg, iconUrl: 'icon.png'};
-				chrome.runtime.sendMessage({type: 'highlight', opt: notifOpt});
+				chrome.storage.local.get({'haxNotifConfig' : false}, function (items) {
+					if (items.haxNotifConfig) {
+						var highlightMsg = candidates[0].innerText;
+						var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
+										message: highlightMsg, iconUrl: 'icon.png'};
+						chrome.runtime.sendMessage({type: 'highlight', opt: notifOpt});
+				}});
 				break;
 			}	
 		}
