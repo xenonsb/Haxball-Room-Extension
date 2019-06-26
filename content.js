@@ -232,6 +232,9 @@ chatObserver = new MutationObserver(function(mutations) {
 		if ([...muted].filter(x => chatLine.innerText.startsWith(x + ': ')).length > 0) {
 			chatLine.hidden = true;
 		}
+		else if (muteAllToggle && muteExceptions.filter(x => chatLine.innerText.startsWith(x + ': ')) == 0 && chatLine.className != 'notice') {
+			chatLine.hidden = true;
+		}
 	}
 	candidates.forEach(x => chatCheck(x));
 })
@@ -248,6 +251,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				nickWait = waitForElement('[data-hook="input"]');
 				nickWait.then(function(nicknameInput) { 
 					myNick = nicknameInput.value;
+					muteExceptions = ['humpyhost','Hostinho',myNick];
 					console.log(myNick);
 					})
 				
@@ -311,10 +315,49 @@ moduleObserver = new MutationObserver(function(mutations) {
 				break;
 			case tempView == "game-view":
 				muted = new Set();
+				muteAllToggle = false;
 				chatWait = waitForElement('[data-hook="log"]');
 				chatWait.then(function (chatArea) {
 					chatObserver.observe(chatArea, {childList: true, subtree: true});
-				})
+				});
+				
+				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
+						settingsWait = waitForElement('[data-hook="settings"]');
+						settingsWait.then(function (settingButton) {
+							hideNavBar = document.createElement('button');
+							hideNavBar.innerText = 'Hide NavBar';
+							hideNavBar.onclick = function () {
+								navBar = document.getElementsByClassName('header')[0];
+								if (navBar.hidden) { 
+									navBar.removeAttribute('hidden'); 
+									hideNavBar.innerText = 'Hide NavBar';
+									}
+								else { 
+									navBar.hidden = true; 
+									hideNavBar.innerText = 'Show NavBar';
+									}
+							}
+							settingButton.parentNode.appendChild(hideNavBar);
+							if (items.haxMuteConfig) {
+								muteAll = document.createElement('button')
+								muteAll.innerText = 'Mute All';
+								muteAll.onclick = function () {
+									if (muteAllToggle) {
+										muteAllToggle = false;
+										var gameframe = document.getElementsByClassName('gameframe')[0];
+										var chats = gameframe.contentWindow.document.querySelector('[data-hook="log"]').getElementsByTagName('p');
+										for (i = 0; i < chats.length; i++) { chats[i].removeAttribute('hidden'); }
+										muteAll.innerText = 'Mute All';
+									}
+									else {
+										muteAllToggle = true;
+										muteAll.innerText = 'Unmute All';
+									}
+								}
+							settingButton.parentNode.appendChild(muteAll);
+							}
+						})
+				});
 				break;
 			case tempView == "dialog":
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
