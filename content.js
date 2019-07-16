@@ -242,16 +242,19 @@ chatObserver = new MutationObserver(function(mutations) {
 		else if (muteAllToggle && muteExceptions.filter(x => chatLine.innerText.startsWith(x + ': ')) == 0 && chatLine.className != 'notice') {
 			chatLine.hidden = true;
 		}
-		if (chatLine.innerText.startsWith('Game st')) {	
-			chatFormat(bottomSec,statSec,chatInput);
+		if (chatLine.innerText.startsWith('Game start')) {	
+			chatFormat(bottomSec,statSec,chatInput,'absolute');
+		}
+		else if (chatLine.innerText.startsWith('Game stop')) {	
+			chatFormat(bottomSec,statSec,chatInput,'relative');
 		}
 	}
 	candidates.forEach(x => chatCheck(x));
 })
 
 // transparent chat by P a c i f i c and xenon
-chatFormat = function(btm, stats, ipt) {
-	btm.style.position = 'absolute';
+chatFormat = function(btm, stats, ipt, posn) {
+	btm.style.position = posn;
 	btm.style.left = '0px';
 	btm.style.right = '0px';
 	btm.style.bottom = '0px';
@@ -424,7 +427,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 					var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 					var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-					chatFormat(bottomSec,statSec,chatInput);
+					chatFormat(bottomSec,statSec,chatInput,'relative');
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
@@ -468,7 +471,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-				chatFormat(bottomSec,statSec,chatInput);
+				chatFormat(bottomSec,statSec,chatInput,'absolute');
 				break;
 			}	
 		}
