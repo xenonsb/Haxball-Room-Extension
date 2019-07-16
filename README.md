@@ -4,9 +4,9 @@
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
-**New in version 0.1.6**: multiple search term for rooms! In case you want to look at your several favourite rooms at once, separate your search terms (as many as you want) using +. For instance, let's say you want to look for spacebounce rooms and soccer rooms at the same time. Type in the search term "spacebounce+soccer" and you'll have it! Refer to the screenshot below for an example.
+**New in version 0.1.9**: woohoo, transparent chat! Who doesn't want more screen estate to see more of the field?
 
-**New in version 0.1.4**: local mute function! Now you can mute a player's messages from the chatbox by right clicking on the player in the room view :)
+**New in version 0.1.6**: multiple search term for rooms! In case you want to look at your several favourite rooms at once, separate your search terms (as many as you want) using +. For instance, let's say you want to look for spacebounce rooms and soccer rooms at the same time. Type in the search term "spacebounce+soccer" and you'll have it! Refer to the screenshot below for an example.
 
 | ![](/screenshots/ss1.png) |
 | :--: |
@@ -37,3 +37,5 @@ Haxball All-in-one Tool adds a few time-saving features to the existing HTML5 ve
 | Local mute button - right click a player to mute them from chat! |
 
 **✓ (Beta) Notification when you're moved into a team**: forgot to check the Haxball tab? You'll get a desktop notification when you are moved into a team. Be aware that this is still a beta function!
+
+**✓ Transparent chat**: want to see chat but also see more of the field? You now have it :D Credits to P a c i f i c for helping with the implementation :)
