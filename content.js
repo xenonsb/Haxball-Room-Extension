@@ -242,12 +242,18 @@ chatObserver = new MutationObserver(function(mutations) {
 		else if (muteAllToggle && muteExceptions.filter(x => chatLine.innerText.startsWith(x + ': ')) == 0 && chatLine.className != 'notice') {
 			chatLine.hidden = true;
 		}
-		if (chatLine.innerText.startsWith('Game start')) {	
-			chatFormat(bottomSec,statSec,chatInput,'absolute');
-		}
-		else if (chatLine.innerText.startsWith('Game stop')) {	
-			chatFormat(bottomSec,statSec,chatInput,'relative');
-		}
+		
+		chrome.storage.local.get({'haxTransChatConfig' : true},
+			function (items) {
+				if (items.haxTransChatConfig) { 
+					if (chatLine.innerText.startsWith('Game start')) {	
+						chatFormat(bottomSec,statSec,chatInput,'absolute');
+					}
+					else if (chatLine.innerText.startsWith('Game stop')) {	
+						chatFormat(bottomSec,statSec,chatInput,'relative');
+					}
+				}
+		});
 	}
 	candidates.forEach(x => chatCheck(x));
 })
@@ -307,17 +313,24 @@ moduleObserver = new MutationObserver(function(mutations) {
 				notifConfig.id = 'haxNotifConfig';
 				notifConfig.onclick = function () { toggleScript(this); }
 				
+				var transChatConfig = document.createElement('input');
+				transChatConfig.type = 'checkbox';
+				transChatConfig.id = 'haxTransChatConfig';
+				transChatConfig.onclick = function () { toggleScript(this); }
+				
 				chrome.storage.local.get({'haxSearchConfig' : true,
 										  'haxAutoJoinConfig' : true,
 										  'haxKickBanConfig' : false,
 										  'haxMuteConfig' : true,
-										  'haxNotifConfig' : false},
+										  'haxNotifConfig' : false,
+										  'haxTransChatConfig' : true},
 										  function(items) { 
 											searchConfig.checked = items.haxSearchConfig;
 											autoJoinConfig.checked = items.haxAutoJoinConfig;
 											kickBanConfig.checked = items.haxKickBanConfig;
 											muteConfig.checked = items.haxMuteConfig;
 											notifConfig.checked = items.haxNotifConfig;
+											transChatConfig.checked = items.haxTransChatConfig;
 				});
 				
 				copyright.append(document.createElement('br'), searchConfig, 'Search Bar by Raamyy and xenon',
@@ -326,7 +339,9 @@ moduleObserver = new MutationObserver(function(mutations) {
 								 document.createElement('br'), muteConfig,
 								 'Local mute by xenon',
 								 document.createElement('br'), notifConfig,
-								 'Game notifications by xenon');
+								 'Game notifications by xenon',
+								 document.createElement('br'), transChatConfig,
+								 'Transparent chat by xenon and Pacific');
 				el.contentWindow.document.querySelector('h1').parentNode.appendChild(copyright);
 				break;
 			case tempView == "roomlist-view":
@@ -349,7 +364,13 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-				chatFormat(bottomSec,statSec,chatInput);
+				
+				chrome.storage.local.get({'haxTransChatConfig' : true},
+					function (items) {
+						if (items.haxTransChatConfig) { 
+							chatFormat(bottomSec,statSec,chatInput,'relative');
+						}
+				});
 				
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
 						settingsWait = waitForElement('[data-hook="settings"]');
@@ -427,7 +448,13 @@ moduleObserver = new MutationObserver(function(mutations) {
 					var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 					var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-					chatFormat(bottomSec,statSec,chatInput,'relative');
+					
+					chrome.storage.local.get({'haxTransChatConfig' : true},
+					function (items) {
+						if (items.haxTransChatConfig) { 
+							chatFormat(bottomSec,statSec,chatInput,'relative');
+						}
+					});
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
@@ -471,7 +498,13 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-				chatFormat(bottomSec,statSec,chatInput,'absolute');
+				
+				chrome.storage.local.get({'haxTransChatConfig' : true},
+					function (items) {
+						if (items.haxTransChatConfig) { 
+							chatFormat(bottomSec,statSec,chatInput,'absolute');
+						}
+				});
 				break;
 			}	
 		}
