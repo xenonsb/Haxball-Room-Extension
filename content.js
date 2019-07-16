@@ -1,5 +1,6 @@
 // attach to initial iFrame load
 var el = document.getElementsByClassName("gameframe")[0];
+var muteAllToggle = false;
 var myNick;
 
 // wait until the game in iFrame loads, then continue
@@ -227,7 +228,13 @@ function mutePlayer(name) {
 
 chatObserver = new MutationObserver(function(mutations) {
 	var candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.tagName == 'P');
-	candidates.forEach(x => console.log(x.innerText));
+	var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+	var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+	var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
+	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
+
+	candidates.forEach(x => console.log(x.innerText));	
 	chatCheck = function(chatLine) {
 		if ([...muted].filter(x => chatLine.innerText.startsWith(x + ': ')).length > 0) {
 			chatLine.hidden = true;
@@ -235,9 +242,23 @@ chatObserver = new MutationObserver(function(mutations) {
 		else if (muteAllToggle && muteExceptions.filter(x => chatLine.innerText.startsWith(x + ': ')) == 0 && chatLine.className != 'notice') {
 			chatLine.hidden = true;
 		}
+		if (chatLine.innerText.startsWith('Game st')) {	
+			chatFormat(bottomSec,statSec,chatInput);
+		}
 	}
 	candidates.forEach(x => chatCheck(x));
 })
+
+// transparent chat by P a c i f i c and xenon
+chatFormat = function(btm, stats, ipt) {
+	btm.style.position = 'absolute';
+	btm.style.left = '0px';
+	btm.style.right = '0px';
+	btm.style.bottom = '0px';
+	btm.style.background = '#0002';
+	stats.style.background = 'unset';
+	ipt.style.background = '#0002';
+}
 
 // main observer to detect changes to views
 moduleObserver = new MutationObserver(function(mutations) {
@@ -321,6 +342,12 @@ moduleObserver = new MutationObserver(function(mutations) {
 					chatObserver.observe(chatArea, {childList: true, subtree: true});
 				});
 				
+				var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
+				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+				chatFormat(bottomSec,statSec,chatInput);
+				
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
 						settingsWait = waitForElement('[data-hook="settings"]');
 						settingsWait.then(function (settingButton) {
@@ -340,11 +367,10 @@ moduleObserver = new MutationObserver(function(mutations) {
 							settingButton.parentNode.appendChild(hideNavBar);
 							if (items.haxMuteConfig) {
 								muteAll = document.createElement('button')
-								muteAll.innerText = 'Mute All';
-								muteAll.onclick = function () {
+								muteAll.innerText = 'Mute Chat';
+								muteAll.onclick = function () { 
 									if (muteAllToggle) {
 										muteAllToggle = false;
-										var gameframe = document.getElementsByClassName('gameframe')[0];
 										var chats = gameframe.contentWindow.document.querySelector('[data-hook="log"]').getElementsByTagName('p');
 										for (i = 0; i < chats.length; i++) { chats[i].removeAttribute('hidden'); }
 										muteAll.innerText = 'Mute All';
@@ -354,8 +380,8 @@ moduleObserver = new MutationObserver(function(mutations) {
 										muteAll.innerText = 'Unmute All';
 									}
 								}
-							settingButton.parentNode.appendChild(muteAll);
 							}
+							settingButton.parentNode.appendChild(muteAll);
 						})
 				});
 				break;
@@ -390,18 +416,26 @@ moduleObserver = new MutationObserver(function(mutations) {
 							}
 						});}})
 				break;
-			case Boolean(tempView.match(/^(room-view|player-list-item|notice)/)):
+			case Boolean(tempView.match(/^(room-view|player-list-item|notice)/)):				
 				// early exit
+				var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+				
+				if (tempView.startsWith('room-view')) {
+					var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+					var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
+					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+					chatFormat(bottomSec,statSec,chatInput);
+				}
+				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
 					if (items.haxKickBanConfig) {
-						var gameframe = document.getElementsByClassName('gameframe')[0];
 						var players = gameframe.contentWindow.document.querySelectorAll('[class^=player-list-item]');
 						var adminStatus = (gameframe.contentWindow.document.querySelector("[class$='view admin']") !== null);
 						players.forEach(x => checkForButtons(x, adminStatus));
 					}
 				});
 				
-			// notification funstuff begins!	
+				// notification funstuff begins!	
 				chrome.storage.local.get({'haxNotifConfig' : false}, function (items) {
 					if (items.haxNotifConfig) {
 						var notifOpt = {type: 'basic', title: 'Haxball All-in-one Tool', 
@@ -429,6 +463,13 @@ moduleObserver = new MutationObserver(function(mutations) {
 						chrome.runtime.sendMessage({type: 'highlight', opt: notifOpt});
 				}});
 				break;
+			case tempView == 'game-state-view':
+				var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
+				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+				chatFormat(bottomSec,statSec,chatInput);
+				break;
 			}	
 		}
 });
@@ -437,7 +478,6 @@ moduleObserver = new MutationObserver(function(mutations) {
 init = waitForElement("div[class$='view']");
 init.then(function(value) {
 	console.log('Done');
-	console.log(value.parentNode);
 	currentView = value.parentNode;
 	moduleObserver.observe(currentView, {childList: true, subtree: true});
 });
