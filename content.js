@@ -540,8 +540,6 @@ moduleObserver = new MutationObserver(function(mutations) {
 							chatFormat(bottomSec,statSec,chatInput,'absolute');
 						}
 					});
-					
-					gameframe.contentWindow.document.onkeypress = function (e) { changeView(e) };
 				});
 				
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
