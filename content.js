@@ -2,7 +2,6 @@
 var el = document.getElementsByClassName("gameframe")[0];
 var muteAllToggle = false;
 var myNick;
-var prevDisplay;
 
 // wait until the game in iFrame loads, then continue
 function waitForElement(selector) {
@@ -224,9 +223,15 @@ function mutePlayer(name) {
 // toggle chat button
 function toggleChatOpt() {
 	var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+	if (gameframe.contentWindow.document.getElementById('toggleChat')) {
+		return;
+	}
+	
 	var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+	var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var toggleChatMsg = document.createElement('div');
+	toggleChatMsg.id = 'toggleChat';
 	toggleChatMsg.align = 'center';
 	toggleChatMsg.style = 'position: absolute; top: 10px;';
 
@@ -239,11 +244,23 @@ function toggleChatOpt() {
 	toggleChatMsg.appendChild(toggleChatBtn);
 	toggleChatMsg.onclick = function () { 
 		if (bottomSec.style.display != 'none') { 
-			prevDisplay = bottomSec.style.display;
 			bottomSec.style.display = 'none'; 
+			toggleChatKb();
 			}
 		else { 
-			bottomSec.style.display = prevDisplay; 
+			bottomSec.removeAttribute('style');
+			chrome.storage.local.get({'haxTransChatConfig' : true},
+			function (items) {
+				if (items.haxTransChatConfig) { 
+					bottomSec.style.position = 'absolute';
+					bottomSec.style.left = '0px';
+					bottomSec.style.right = '0px';
+					bottomSec.style.bottom = '0px';
+					bottomSec.style.background = '#0002';
+					statSec.style.background = 'unset';
+					chatInput.style.background = '#0002';
+				}
+			})
 			gameframe.contentWindow.document.onkeydown = null;
 			chatInput.onkeydown = null;
 		}
@@ -259,11 +276,18 @@ function toggleChatOpt() {
 function toggleChatKb() {
 	var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
 	var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+	var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
 	gameframe.contentWindow.document.onkeydown = function (f) {
 		if (f.keyCode == 9 && bottomSec.style.display == 'none') {		
-			bottomSec.style.display = prevDisplay;
+			bottomSec.removeAttribute('style');
+			chrome.storage.local.get({'haxTransChatConfig' : true},
+				function (items) {
+					if (items.haxTransChatConfig) { 
+						chatFormat(bottomSec,statSec,chatInput,'absolute');
+					}
+				});
 			chatLog.scrollTo(0, chatLog.scrollHeight);
 			chatInput.onkeydown = function (g) {
 				if(g.keyCode == 13 || g.keyCode == 27) {
@@ -302,11 +326,9 @@ chatObserver = new MutationObserver(function(mutations) {
 				if (items.haxTransChatConfig) { 
 					if (chatLine.innerText.startsWith('Game start')) {	
 						chatFormat(bottomSec,statSec,chatInput,'absolute');
-						prevDisplay = 'absolute';
 					}
 					else if (chatLine.innerText.startsWith('Game stop')) {	
-						chatFormat(bottomSec,statSec,chatInput,'relative');
-						prevDisplay = 'relative';
+						bottomSec.removeAttribute('style');
 					}
 				}
 		});
@@ -415,6 +437,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				copyright.append(document.createElement('br'), 'By xenon, thanks to Raamyy and Pacific');
 				el.contentWindow.document.querySelector('h1').parentNode.appendChild(copyright);
 				break;
+				
 			case tempView == "roomlist-view":
 				// early exit
 				chrome.storage.local.get({'haxSearchConfig' : true, 'haxAutoJoinConfig' : true},
@@ -442,6 +465,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				
 				changeNickBtn.parentNode.insertBefore(addonSettingsBtn,changeNickBtn);
 				break;
+				
 			case tempView == "game-view":
 				muted = new Set();
 				muteAllToggle = false;
@@ -454,13 +478,25 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-				prevDisplay = 'relative';
 				
 				chrome.storage.local.get({'haxTransChatConfig' : true},
 					function (items) {
 						if (items.haxTransChatConfig) { 
-							chatFormat(bottomSec,statSec,chatInput,'relative');
+							bottomSec.removeAttribute('style');
 						}
+				});
+				
+				inGame = waitForElement('.bar-container');
+				inGame.then(function () {
+					toggleChatOpt();
+					toggleChatKb();
+					
+					chrome.storage.local.get({'haxTransChatConfig' : true},
+					function (items) {
+						if (items.haxTransChatConfig) { 
+							chatFormat(bottomSec,statSec,chatInput,'absolute');
+						}
+					});
 				});
 				
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
@@ -535,11 +571,12 @@ moduleObserver = new MutationObserver(function(mutations) {
 					var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 					var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+					bottomSec.removeAttribute('style');;
 					
 					chrome.storage.local.get({'haxTransChatConfig' : true},
 					function (items) {
 						if (items.haxTransChatConfig) { 
-							chatFormat(bottomSec,statSec,chatInput,'relative');
+							bottomSec.removeAttribute('style');
 						}
 					});
 					
@@ -593,10 +630,6 @@ moduleObserver = new MutationObserver(function(mutations) {
 					function (items) {
 						if (items.haxTransChatConfig) { 
 							chatFormat(bottomSec,statSec,chatInput,'absolute');
-							prevDisplay = 'absolute';
-						}
-						else {
-							prevDisplay = 'relative';
 						}
 				});
 				
