@@ -4,6 +4,8 @@
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
+**New in version 0.2.2**: overhaul of add-on settings in the nickname selection page, also the option to hide chat completely (not just transparency!) The chat toggle is at the top (game goals/time bar). When chat is hidden, you can still use the "Tab" key to quickly access chat - and after you're done with sending your message, the chat area will disappear :)
+
 **New in version 0.1.9**: woohoo, transparent chat! Who doesn't want more screen estate to see more of the field?
 
 **New in version 0.1.6**: multiple search term for rooms! In case you want to look at your several favourite rooms at once, separate your search terms (as many as you want) using +. For instance, let's say you want to look for spacebounce rooms and soccer rooms at the same time. Type in the search term "spacebounce+soccer" and you'll have it! Refer to the screenshot below for an example.
