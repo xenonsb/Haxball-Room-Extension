@@ -240,7 +240,7 @@ function toggleChatOpt() {
 	toggleChatBtn.onmouseover = function () {this.style.backgroundColor = '#2f5e85'};
 	toggleChatBtn.onmouseout = function () {this.style.backgroundColor = '#244967'};
 
-	toggleChatBtn.innerText = 'Click to Toggle Chat';
+	toggleChatBtn.innerText = 'Toggle Chat';
 	toggleChatMsg.appendChild(toggleChatBtn);
 	toggleChatMsg.onclick = function () { 
 		if (bottomSec.style.display != 'none') { 
@@ -292,11 +292,48 @@ function toggleChatKb() {
 			chatInput.onkeydown = function (g) {
 				if(g.keyCode == 13 || g.keyCode == 27) {
 					chatLog.scrollTo(0, chatLog.scrollHeight);
-					setTimeout(function () { bottomSec.style.display = 'none'; }, 250);
+					setTimeout(function () { bottomSec.style.display = 'none'; }, 200);
 				}
 			}
 			chatInput.focus();
 		}
+		if (f.key >= 5 && f.key <= 8) {
+			changeView(f.key);
+		}
+	}
+}
+
+// linkify from stackoverflow 1500260
+function linkify(text) {
+    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" target="blank">' + url + '</a>';
+    });
+}
+
+// clicking for zoom
+function simulateClick(item) {
+  item.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+  item.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+  item.dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
+  item.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+  item.dispatchEvent(new MouseEvent('mouseout', {bubbles: true}));
+  item.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+  item.dispatchEvent(new Event('change', {bubbles: true}));
+  return true;
+}
+
+function changeView(viewIndex) {
+	if (5 <= viewIndex <= 8) {
+		var gameframe = document.getElementsByClassName('gameframe')[0];
+		gameframe.contentWindow.document.querySelector('[data-hook="settings"]').click();
+		var viewModeToggle = waitForElement('[data-hook="viewmode"]')
+		viewModeToggle.then(function (toggle) {
+			toggle.selectedIndex = viewIndex;
+			simulateClick(toggle);
+			closeBtn = waitForElement('[data-hook="close"]');
+			closeBtn.then(function (btn) { btn.click() })
+		})
 	}
 }
 
@@ -332,6 +369,8 @@ chatObserver = new MutationObserver(function(mutations) {
 					}
 				}
 		});
+		
+		chatLine.innerHTML = linkify(chatLine.innerHTML);
 	}
 	candidates.forEach(x => chatCheck(x));
 })
@@ -419,6 +458,9 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var okButton = el.contentWindow.document.querySelector('[data-hook="ok"]');
 				var buttonDiv = document.createElement('div');
 				buttonDiv.align = 'center';
+				
+				var dividerDiv = document.createElement('div');
+				dividerDiv.style = 'width:5px; display:inline-block';
 
 				var addonSettingsOpen = document.createElement('button');
 				addonSettingsOpen.innerText = 'Add-on Settings';
@@ -429,8 +471,9 @@ moduleObserver = new MutationObserver(function(mutations) {
 				}
 
 				okButton.parentNode.insertBefore(buttonDiv, okButton);
-				buttonDiv.appendChild(okButton)
-				buttonDiv.appendChild(addonSettingsOpen)
+				buttonDiv.appendChild(okButton);
+				buttonDiv.appendChild(dividerDiv);
+				buttonDiv.appendChild(addonSettingsOpen);
 				
 				var copyright = document.createElement('p');
 				copyright.innerText = 'Haxball All-in-one Tool version ' + chrome.runtime.getManifest().version;
@@ -497,15 +540,17 @@ moduleObserver = new MutationObserver(function(mutations) {
 							chatFormat(bottomSec,statSec,chatInput,'absolute');
 						}
 					});
+					
+					gameframe.contentWindow.document.onkeypress = function (e) { changeView(e) };
 				});
 				
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
 						settingsWait = waitForElement('[data-hook="settings"]');
 						settingsWait.then(function (settingButton) {
+							navBar = document.getElementsByClassName('header')[0];
 							hideNavBar = document.createElement('button');
-							hideNavBar.innerText = 'Hide NavBar';
+							hideNavBar.innerText = (navBar.hidden ? 'Show NavBar' : 'Hide NavBar');
 							hideNavBar.onclick = function () {
-								navBar = document.getElementsByClassName('header')[0];
 								if (navBar.hidden) { 
 									navBar.removeAttribute('hidden'); 
 									hideNavBar.innerText = 'Hide NavBar';
