@@ -3,6 +3,13 @@ var el = document.getElementsByClassName("gameframe")[0];
 var muteAllToggle = false;
 var myNick;
 
+function copyright() {
+	var copyright = document.createElement('p');
+	copyright.innerText = 'Haxball All-in-one Tool version ' + chrome.runtime.getManifest().version;
+	copyright.append(document.createElement('br'), 'Press the Add-on button for options', document.createElement('br'), 'By xenon, thanks to Raamyy and Pacific');
+	return copyright
+}
+
 // wait until the game in iFrame loads, then continue
 function waitForElement(selector) {
   return new Promise(function(resolve, reject) {
@@ -245,11 +252,10 @@ function toggleChatOpt() {
 	toggleChatMsg.onclick = function () { 
 		if (bottomSec.style.display != 'none') { 
 			bottomSec.style.display = 'none'; 
-			toggleChatKb();
 			}
 		else { 
 			bottomSec.removeAttribute('style');
-			chrome.storage.local.get({'haxTransChatConfig' : true},
+			chrome.storage.local.get({'haxTransChatConfig' : false},
 			function (items) {
 				if (items.haxTransChatConfig) { 
 					bottomSec.style.position = 'absolute';
@@ -261,10 +267,8 @@ function toggleChatOpt() {
 					chatInput.style.background = '#0002';
 				}
 			})
-			gameframe.contentWindow.document.onkeydown = null;
-			chatInput.onkeydown = null;
 		}
-	};
+	}
 
 	var toggleChatMsgPos = waitForElement('.bar-container');
 	toggleChatMsgPos.then(function (pos) {
@@ -280,33 +284,54 @@ function toggleChatKb() {
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
 	gameframe.contentWindow.document.onkeydown = function (f) {
-		if (f.keyCode == 9 && bottomSec.style.display == 'none') {		
-			bottomSec.removeAttribute('style');
-			chrome.storage.local.get({'haxTransChatConfig' : true},
+		if (f.keyCode == 192 || f.keyCode == 222) {
+			if (bottomSec.style.display == 'none') { 
+				bottomSec.removeAttribute('style');
+				chrome.storage.local.get({'haxTransChatConfig' : false},
 				function (items) {
 					if (items.haxTransChatConfig) { 
-						chatFormat(bottomSec,statSec,chatInput,'absolute');
+						bottomSec.style.position = 'absolute';
+						bottomSec.style.left = '0px';
+						bottomSec.style.right = '0px';
+						bottomSec.style.bottom = '0px';
+						bottomSec.style.background = '#0002';
+						statSec.style.background = 'unset';
+						chatInput.style.background = '#0002';
 					}
-				});
-			chatLog.scrollTo(0, chatLog.scrollHeight);
-			chatInput.onkeydown = function (g) {
-				if(g.keyCode == 13 || g.keyCode == 27) {
-					chatLog.scrollTo(0, chatLog.scrollHeight);
-					setTimeout(function () { bottomSec.style.display = 'none'; }, 200);
-				}
+			})
 			}
-			chatInput.focus();
+			else { bottomSec.style.display = 'none'; }
 		}
-		if (f.key >= 5 && f.key <= 8) {
-			changeView(f.key);
-		}
+		if (f.keyCode == 9) { 
+			bottomSec.removeAttribute('style');
+			chrome.storage.local.get({'haxTransChatConfig' : false},
+			function (items) {
+				if (items.haxTransChatConfig) { 
+				bottomSec.style.position = 'absolute';
+				bottomSec.style.left = '0px';
+				bottomSec.style.right = '0px';
+				bottomSec.style.bottom = '0px';
+				bottomSec.style.background = '#0002';
+				statSec.style.background = 'unset';
+				chatInput.style.background = '#0002';
+				}
+			})
+			chatInput.focus(); }
+		chrome.storage.local.get({'haxViewModeConfig' : false},
+			function (items) {
+				if (items.haxViewModeConfig) {
+					if (f.key >= 5 && f.key <= 8) { changeView(f.key); }
+					}
+			})
 	}
 }
 
+
 // linkify from stackoverflow 1500260
 function linkify(text) {
-    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    var urlRegex =/(\b(https?:\/\/|ftp:\/\/|file:\/\/|www\.)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
     return text.replace(urlRegex, function(url) {
+		if (url.startsWith('www.')) { url = 'http://' + url; }
         return '<a href="' + url + '" target="blank">' + url + '</a>';
     });
 }
@@ -358,7 +383,7 @@ chatObserver = new MutationObserver(function(mutations) {
 			toggleChatKb();
 		}
 		
-		chrome.storage.local.get({'haxTransChatConfig' : true},
+		chrome.storage.local.get({'haxTransChatConfig' : false},
 			function (items) {
 				if (items.haxTransChatConfig) { 
 					if (chatLine.innerText.startsWith('Game start')) {	
@@ -410,6 +435,89 @@ function configElem(id, def = false, desc) {
 	return newConfig
 }
 
+function addonSettingsPopup(currentView) {
+	var addonSettings = document.createElement('div');
+	addonSettings.className = 'dialog settings-view';
+	addonSettings.style.display = 'none';
+
+	var addonSettingsHeader = document.createElement('h1');
+	addonSettingsHeader.innerText = 'Add-on Settings';
+	addonSettings.appendChild(addonSettingsHeader);
+
+	var addonSettingsClose = document.createElement('button')
+	addonSettingsClose.innerText = 'Close';
+	addonSettings.appendChild(addonSettingsClose);
+	
+	var addonSettingsOpen = document.createElement('button');
+	addonSettingsOpen.innerText = 'Add-on';
+	addonSettingsOpen.setAttribute('data-hook','add-on');
+	
+	var addonSection = document.createElement('div');
+	addonSettings.appendChild(addonSection);
+	addonSettings.appendChild(copyright());
+	addonSection.className = 'section selected';
+	addonSection.appendChild(configElem('haxSearchConfig',true,'Search bar by Raamyy and xenon'));
+	addonSection.appendChild(configElem('haxAutoJoinConfig',true,'Room AutoJoin by xenon'));
+	addonSection.appendChild(configElem('haxKickBanConfig',false,'Room Kick/Ban shortcuts by xenon'));
+	addonSection.appendChild(configElem('haxMuteConfig',true,'Local mute by xenon'));
+	addonSection.appendChild(configElem('haxNotifConfig',false,'Game notifications by xenon'));
+	addonSection.appendChild(configElem('haxTransChatConfig',false,'Transparent chat by xenon and Pacific'));
+	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys by xenon'));
+	
+	if (currentView == 'choose-nickname-view') {
+		var nicknameView = el.contentWindow.document.getElementsByClassName('choose-nickname-view')[0];
+		
+		addonSettingsClose.onclick = function () {
+			addonSettings.style.display = 'none';
+			nicknameView.childNodes[1].style.display = 'flex';
+		};
+		
+		addonSettingsOpen.onclick = function () { 
+			addonSettings.style.display = 'flex';
+			nicknameView.childNodes[1].style.display = 'none';
+		}
+		
+		nicknameView.appendChild(addonSettings);
+
+		var okButton = el.contentWindow.document.querySelector('[data-hook="ok"]');
+		var buttonDiv = document.createElement('div');
+		buttonDiv.align = 'center';
+		
+		var dividerDiv = document.createElement('div');
+		dividerDiv.style = 'width:5px; display:inline-block';
+		
+		okButton.parentNode.insertBefore(buttonDiv, okButton);
+		buttonDiv.appendChild(okButton);
+		buttonDiv.appendChild(dividerDiv);
+		buttonDiv.appendChild(addonSettingsOpen);
+	}
+	
+	else { 
+		var gameframe = document.getElementsByClassName('gameframe')[0];
+		var settingButton = gameframe.contentWindow.document.querySelector('[data-hook="settings"]');
+		var topSec = gameframe.contentWindow.document.getElementsByClassName('top-section')[0];
+		addonSettings.style.position = 'absolute';
+		addonSettings.style.left = 0;
+		addonSettings.style.right = 0;
+		addonSettings.style.top = '15%';
+		addonSettings.style.marginLeft = 'auto';
+		addonSettings.style.marginRight = 'auto';
+		topSec.parentNode.appendChild(addonSettings);
+		
+		addonSettingsClose.append(' - press ESC twice to apply');
+		
+		addonSettingsClose.onclick = function () {
+			addonSettings.style.display = 'none';
+		}
+		
+		addonSettingsOpen.onclick = function () { 
+			addonSettings.style.display = 'flex';
+		}
+		
+		settingButton.parentNode.appendChild(addonSettingsOpen);
+	}
+}
+
 // main observer to detect changes to views
 moduleObserver = new MutationObserver(function(mutations) {
 	candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.className);
@@ -425,60 +533,8 @@ moduleObserver = new MutationObserver(function(mutations) {
 					})
 				
 				// addon settings
-				var addonSettings = document.createElement('div');
-				addonSettings.className = 'dialog settings-view';
-				addonSettings.style = 'display: none';
-
-				var addonSettingsHeader = document.createElement('h1');
-				addonSettingsHeader.innerText = 'Add-on Settings';
-				addonSettings.appendChild(addonSettingsHeader);
-
-				var addonSettingsClose = document.createElement('button')
-				addonSettingsClose.innerText = 'Close';
-				addonSettingsClose.setAttribute('data-hook','close')
-				addonSettingsClose.onclick = function () {
-					addonSettings.style = 'display: none';
-					nicknameView.childNodes[1].style = 'display: flex';
-				};
-				addonSettings.appendChild(addonSettingsClose);
-
-				var addonSection = document.createElement('div');
-				addonSettings.appendChild(addonSection);
-				addonSection.className = 'section selected';
-				addonSection.appendChild(configElem('haxSearchConfig',true,'Search bar by Raamyy and xenon'));
-				addonSection.appendChild(configElem('haxAutoJoinConfig',true,'Room AutoJoin by xenon'));
-				addonSection.appendChild(configElem('haxKickBanConfig',false,'Room Kick/Ban shortcuts by xenon'));
-				addonSection.appendChild(configElem('haxMuteConfig',true,'Local mute by xenon'));
-				addonSection.appendChild(configElem('haxNotifConfig',false,'Game notifications by xenon'));
-				addonSection.appendChild(configElem('haxTransChatConfig',true,'Transparent chat by xenon and Pacific'));
-				
-				var nicknameView = el.contentWindow.document.getElementsByClassName('choose-nickname-view')[0];
-				nicknameView.appendChild(addonSettings);
-
-				var okButton = el.contentWindow.document.querySelector('[data-hook="ok"]');
-				var buttonDiv = document.createElement('div');
-				buttonDiv.align = 'center';
-				
-				var dividerDiv = document.createElement('div');
-				dividerDiv.style = 'width:5px; display:inline-block';
-
-				var addonSettingsOpen = document.createElement('button');
-				addonSettingsOpen.innerText = 'Add-on Settings';
-				addonSettingsOpen.setAttribute('data-hook','add-on');
-				addonSettingsOpen.onclick = function () { 
-					addonSettings.style = 'display: flex';
-					nicknameView.childNodes[1].style = 'display: none';
-				}
-
-				okButton.parentNode.insertBefore(buttonDiv, okButton);
-				buttonDiv.appendChild(okButton);
-				buttonDiv.appendChild(dividerDiv);
-				buttonDiv.appendChild(addonSettingsOpen);
-				
-				var copyright = document.createElement('p');
-				copyright.innerText = 'Haxball All-in-one Tool version ' + chrome.runtime.getManifest().version;
-				copyright.append(document.createElement('br'), 'By xenon, thanks to Raamyy and Pacific');
-				el.contentWindow.document.querySelector('h1').parentNode.appendChild(copyright);
+				addonSettingsPopup('choose-nickname-view');
+				el.contentWindow.document.querySelector('h1').parentNode.appendChild(copyright());
 				break;
 				
 			case tempView == "roomlist-view":
@@ -521,8 +577,9 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+				chatInput.placeholder = 'Press ` or " to toggle chat hide';
 				
-				chrome.storage.local.get({'haxTransChatConfig' : true},
+				chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
 						if (items.haxTransChatConfig) { 
 							bottomSec.removeAttribute('style');
@@ -534,7 +591,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 					toggleChatOpt();
 					toggleChatKb();
 					
-					chrome.storage.local.get({'haxTransChatConfig' : true},
+					chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
 						if (items.haxTransChatConfig) { 
 							chatFormat(bottomSec,statSec,chatInput,'absolute');
@@ -542,41 +599,49 @@ moduleObserver = new MutationObserver(function(mutations) {
 					});
 				});
 				
+				settingsWait = waitForElement('[data-hook="settings"]');
+				settingsWait.then(function (settingButton) {
+					navBar = document.getElementsByClassName('header')[0];
+					hideNavBar = document.createElement('button');
+					hideNavBar.innerText = (navBar.hidden ? 'Show NavBar' : 'Hide NavBar');
+					hideNavBar.onclick = function () {
+						if (navBar.hidden) { 
+							navBar.removeAttribute('hidden'); 
+							hideNavBar.innerText = 'Hide NavBar';
+							}
+						else { 
+							navBar.hidden = true; 
+							hideNavBar.innerText = 'Show NavBar';
+							}
+					}
+					
+					addonSettingsPopup('game-view');
+					settingButton.parentNode.appendChild(hideNavBar);
+				})
+				
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
-						settingsWait = waitForElement('[data-hook="settings"]');
-						settingsWait.then(function (settingButton) {
-							navBar = document.getElementsByClassName('header')[0];
-							hideNavBar = document.createElement('button');
-							hideNavBar.innerText = (navBar.hidden ? 'Show NavBar' : 'Hide NavBar');
-							hideNavBar.onclick = function () {
-								if (navBar.hidden) { 
-									navBar.removeAttribute('hidden'); 
-									hideNavBar.innerText = 'Hide NavBar';
-									}
-								else { 
-									navBar.hidden = true; 
-									hideNavBar.innerText = 'Show NavBar';
-									}
+					if (items.haxMuteConfig) {
+						muteAll = document.createElement('button')
+						muteAll.style.padding = '5px 10px';
+						muteAll.style.width = '80px';
+						muteAll.innerText = 'Mute';
+						muteAll.onclick = function () { 
+							if (muteAllToggle) {
+								muteAllToggle = false;
+								var chats = gameframe.contentWindow.document.querySelector('[data-hook="log"]').getElementsByTagName('p');
+								for (i = 0; i < chats.length; i++) { chats[i].removeAttribute('hidden'); }
+								muteAll.innerText = 'Mute';
 							}
-							settingButton.parentNode.appendChild(hideNavBar);
-							if (items.haxMuteConfig) {
-								muteAll = document.createElement('button')
-								muteAll.innerText = 'Mute Chat';
-								muteAll.onclick = function () { 
-									if (muteAllToggle) {
-										muteAllToggle = false;
-										var chats = gameframe.contentWindow.document.querySelector('[data-hook="log"]').getElementsByTagName('p');
-										for (i = 0; i < chats.length; i++) { chats[i].removeAttribute('hidden'); }
-										muteAll.innerText = 'Mute All';
-									}
-									else {
-										muteAllToggle = true;
-										muteAll.innerText = 'Unmute All';
-									}
-								}
+							else {
+								muteAllToggle = true;
+								muteAll.innerText = 'Unmute';
 							}
-							settingButton.parentNode.appendChild(muteAll);
-						})
+						}
+					var dividerDiv = document.createElement('div');
+					dividerDiv.style = 'width: 5px';
+					chatInput.parentNode.appendChild(dividerDiv);
+					chatInput.parentNode.insertBefore(muteAll,chatInput);
+					}
 				});
 				break;
 			case tempView == "dialog":
@@ -616,7 +681,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 					bottomSec.removeAttribute('style');;
 					
-					chrome.storage.local.get({'haxTransChatConfig' : true},
+					chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
 						if (items.haxTransChatConfig) { 
 							bottomSec.removeAttribute('style');
@@ -624,7 +689,6 @@ moduleObserver = new MutationObserver(function(mutations) {
 					});
 					
 					gameframe.contentWindow.document.onkeydown = null;
-					chatInput.onkeydown = null;
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
@@ -669,7 +733,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 				
-				chrome.storage.local.get({'haxTransChatConfig' : true},
+				chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
 						if (items.haxTransChatConfig) { 
 							chatFormat(bottomSec,statSec,chatInput,'absolute');
