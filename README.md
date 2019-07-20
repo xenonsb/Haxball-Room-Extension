@@ -4,7 +4,7 @@
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
-**New in version 0.2.2**: overhaul of add-on settings in the nickname selection page, also the option to hide chat completely (not just transparency!) The chat toggle is at the top (game goals/time bar). When chat is hidden, you can still use the "Tab" key to quickly access chat - and after you're done with sending your message, the chat area will disappear :)
+**New in version 0.2.2**: overhaul of add-on settings in the nickname selection page, also the option to hide chat completely (not just transparency!) The chat toggle is at the top (game goals/time bar). When chat is hidden, you can still use the "Tab" key to quickly access chat. In addition, use the top left key of your keyboard (~ or ") to quickly show/hide the chat area.
 
 **New in version 0.1.9**: woohoo, transparent chat! Who doesn't want more screen estate to see more of the field?
 
