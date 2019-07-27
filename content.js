@@ -284,7 +284,7 @@ function toggleChatKb() {
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
 	gameframe.contentWindow.document.onkeydown = function (f) {
-		if (f.keyCode == 192 || f.keyCode == 222) {
+		if (f.code == 'Backquote') {
 			if (bottomSec.style.display == 'none') { 
 				bottomSec.removeAttribute('style');
 				chrome.storage.local.get({'haxTransChatConfig' : false},
@@ -298,11 +298,12 @@ function toggleChatKb() {
 						statSec.style.background = 'unset';
 						chatInput.style.background = '#0002';
 					}
-			})
+				})
+				chatLog.scrollTo(0, chatLog.scrollHeight);
 			}
 			else { bottomSec.style.display = 'none'; }
 		}
-		if (f.keyCode == 9) { 
+		if (f.code == 'Tab' || f.code == 'Enter') { 
 			bottomSec.removeAttribute('style');
 			chrome.storage.local.get({'haxTransChatConfig' : false},
 			function (items) {
@@ -316,6 +317,7 @@ function toggleChatKb() {
 				chatInput.style.background = '#0002';
 				}
 			})
+			chatLog.scrollTo(0, chatLog.scrollHeight);
 			chatInput.focus(); }
 		chrome.storage.local.get({'haxViewModeConfig' : false},
 			function (items) {
@@ -577,7 +579,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-				chatInput.placeholder = 'Press ` or " to toggle chat hide';
+				chatInput.placeholder = 'Press key below ESC to toggle chat hide';
 				
 				chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
@@ -602,16 +604,20 @@ moduleObserver = new MutationObserver(function(mutations) {
 				settingsWait = waitForElement('[data-hook="settings"]');
 				settingsWait.then(function (settingButton) {
 					navBar = document.getElementsByClassName('header')[0];
+					navBar.style.transition = 'height 0.3s';
+					navBar.id = 'nothidden';
 					hideNavBar = document.createElement('button');
-					hideNavBar.innerText = (navBar.hidden ? 'Show NavBar' : 'Hide NavBar');
+					hideNavBar.innerText = 'Hide Navbar';
 					hideNavBar.onclick = function () {
-						if (navBar.hidden) { 
-							navBar.removeAttribute('hidden'); 
-							hideNavBar.innerText = 'Hide NavBar';
+						if (navBar.hasAttribute('id')) { 
+							navBar.removeAttribute('id','nothidden');
+							navBar.style.height = '0px';
+							hideNavBar.innerText = 'Show NavBar';
 							}
 						else { 
-							navBar.hidden = true; 
-							hideNavBar.innerText = 'Show NavBar';
+							navBar.style.height = '35px';
+							navBar.setAttribute('id','nothidden'); 
+							hideNavBar.innerText = 'Hide NavBar';
 							}
 					}
 					
