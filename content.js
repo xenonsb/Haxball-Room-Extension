@@ -5,7 +5,11 @@ var myNick;
 
 function copyright() {
 	var copyright = document.createElement('p');
-	copyright.innerText = 'Haxball All-in-one Tool version ' + chrome.runtime.getManifest().version;
+	var gitLink = document.createElement('a');
+	gitLink.href = 'https://github.com/xenonsb/Haxball-Room-Extension/';
+	gitLink.target = 'blank';
+	gitLink.innerText = 'Haxball All-in-one Tool version ' + chrome.runtime.getManifest().version;
+	copyright.append(gitLink);
 	copyright.append(document.createElement('br'), 'Press the Add-on button for options', document.createElement('br'), 'By xenon, thanks to Raamyy and Pacific');
 	return copyright
 }
@@ -167,11 +171,22 @@ function check() {
 function createKickBanButtons(x, admin) {
 	var displayCheck = (admin ? 'inline' : 'none');
 	
+	var dblDiv = document.createElement('div');
+	var dblTxt = document.createTextNode('Double click!');
+	dblDiv.appendChild(dblTxt);
+	dblDiv.style = 'visibility: hidden; position: fixed; background-color: #0004';
+	x.appendChild(dblDiv);
+	
 	kickBtn = document.createElement('button');
 	kickBtn.style = 'padding: 2px 3px';
 	kickBtn.style.display = displayCheck;
 	kickBtn.className = 'kb';
-	kickBtn.onclick = function() { kickPlayer(this.parentNode, false); };
+	kickBtn.onclick = function (event) { 
+		dblDiv.style.top = (event.clientY + 20) + 'px';
+		dblDiv.style.left = (event.clientX + 20) + 'px';
+		dblDiv.style.visibility = 'visible'; 
+		window.setTimeout(function () { dblDiv.style.visibility = 'hidden'; }, 500) }
+	kickBtn.ondblclick = function() { kickPlayer(this.parentNode, false); };
 	kickBtn.innerText = 'K';
 
 	banBtn = document.createElement('button');
@@ -179,7 +194,12 @@ function createKickBanButtons(x, admin) {
 	banBtn.style.display = displayCheck;
 	banBtn.style.backgroundColor = '#c13535';
 	banBtn.className = 'kb';
-	banBtn.onclick = function() { kickPlayer(this.parentNode, true); };
+	banBtn.onclick = function (event) { 
+		dblDiv.style.top = (event.clientY + 20) + 'px';
+		dblDiv.style.left = (event.clientX + 20) + 'px';
+		dblDiv.style.visibility = 'visible'; 
+		window.setTimeout(function () { dblDiv.style.visibility = 'hidden'; }, 500) }
+	banBtn.ondblclick = function() { kickPlayer(this.parentNode, true); };
 	banBtn.innerText = 'B';
 	x.appendChild(kickBtn);
 	x.appendChild(banBtn);
@@ -255,16 +275,16 @@ function toggleChatOpt() {
 			}
 		else { 
 			bottomSec.removeAttribute('style');
-			chrome.storage.local.get({'haxTransChatConfig' : false},
+			chrome.storage.local.get({'haxTransChatConfig' : false, 'haxAlpha' : 10},
 			function (items) {
 				if (items.haxTransChatConfig) { 
 					bottomSec.style.position = 'absolute';
 					bottomSec.style.left = '0px';
 					bottomSec.style.right = '0px';
 					bottomSec.style.bottom = '0px';
-					bottomSec.style.background = '#0002';
+					bottomSec.style.background = '#1A2125' + items.haxAlpha;
 					statSec.style.background = 'unset';
-					chatInput.style.background = '#0002';
+					chatInput.style.background = '#1A2125' + items.haxAlpha;
 				}
 			})
 		}
@@ -287,16 +307,16 @@ function toggleChatKb() {
 		if (f.code == 'Backquote') {
 			if (bottomSec.style.display == 'none') { 
 				bottomSec.removeAttribute('style');
-				chrome.storage.local.get({'haxTransChatConfig' : false},
+				chrome.storage.local.get({'haxTransChatConfig' : false, 'haxAlpha' : 10},
 				function (items) {
 					if (items.haxTransChatConfig) { 
 						bottomSec.style.position = 'absolute';
 						bottomSec.style.left = '0px';
 						bottomSec.style.right = '0px';
 						bottomSec.style.bottom = '0px';
-						bottomSec.style.background = '#0002';
+						bottomSec.style.background = '#1A2125' + items.haxAlpha;
 						statSec.style.background = 'unset';
-						chatInput.style.background = '#0002';
+						chatInput.style.background = '#1A2125' + items.haxAlpha;
 					}
 				})
 				chatLog.scrollTo(0, chatLog.scrollHeight);
@@ -305,16 +325,16 @@ function toggleChatKb() {
 		}
 		if (f.code == 'Tab' || f.code == 'Enter') { 
 			bottomSec.removeAttribute('style');
-			chrome.storage.local.get({'haxTransChatConfig' : false},
+			chrome.storage.local.get({'haxTransChatConfig' : false, 'haxAlpha' : 10},
 			function (items) {
 				if (items.haxTransChatConfig) { 
 				bottomSec.style.position = 'absolute';
 				bottomSec.style.left = '0px';
 				bottomSec.style.right = '0px';
 				bottomSec.style.bottom = '0px';
-				bottomSec.style.background = '#0002';
+				bottomSec.style.background = '#1A2125' + 'items.haxAlpha';
 				statSec.style.background = 'unset';
-				chatInput.style.background = '#0002';
+				chatInput.style.background = '#1A2125' + 'items.haxAlpha';
 				}
 			})
 			chatLog.scrollTo(0, chatLog.scrollHeight);
@@ -325,6 +345,9 @@ function toggleChatKb() {
 					if (f.key >= 5 && f.key <= 8) { changeView(f.key); }
 					}
 			})
+		if (f.code == 'KeyR') {
+			record();
+		}
 	}
 }
 
@@ -362,6 +385,14 @@ function changeView(viewIndex) {
 			closeBtn.then(function (btn) { btn.click() })
 		})
 	}
+}
+
+function record() {
+	var gameframe = document.getElementsByClassName('gameframe')[0];
+	gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
+	var recBtn = waitForElement('[data-hook="rec-btn"]');
+	recBtn.then(function (btn) { btn.click() });
+	gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
 }
 
 chatObserver = new MutationObserver(function(mutations) {
@@ -404,13 +435,16 @@ chatObserver = new MutationObserver(function(mutations) {
 
 // transparent chat by P a c i f i c and xenon
 chatFormat = function(btm, stats, ipt, posn) {
-	btm.style.position = posn;
-	btm.style.left = '0px';
-	btm.style.right = '0px';
-	btm.style.bottom = '0px';
-	btm.style.background = '#0002';
-	stats.style.background = 'unset';
-	ipt.style.background = '#0002';
+	chrome.storage.local.get({'haxAlpha' : 10},
+	function (items) {
+		btm.style.position = posn;
+		btm.style.left = '0px';
+		btm.style.right = '0px';
+		btm.style.bottom = '0px';
+		btm.style.background = '#1A2125' + items.haxAlpha;
+		stats.style.background = 'unset';
+		ipt.style.background = '#1A2125' + items.haxAlpha;
+	});
 }
 
 // pretty settings
@@ -454,17 +488,44 @@ function addonSettingsPopup(currentView) {
 	addonSettingsOpen.innerText = 'Add-on';
 	addonSettingsOpen.setAttribute('data-hook','add-on');
 	
+	// thing for transparency selection
+	var sliderDiv = document.createElement('div');
+	sliderDiv.align = 'center';
+	
+	var sliderOutput = document.createElement('output');
+	sliderOutput.id = 'sliderAmt';
+	
+	var sliderInput = document.createElement('input');
+	sliderInput.type = 'range';
+	sliderInput.id = 'myTrans';
+	sliderInput.min = 10;
+	sliderInput.max = 90;
+	sliderInput.step = 10;
+	
+	chrome.storage.local.get({'haxAlpha' : 10},
+		function (items) { sliderInput.value = items.haxAlpha; });
+	
+	sliderOutput.value = sliderInput.value + '%';
+	sliderInput.oninput = function () { 
+		sliderOutput.value = sliderInput.value + "%";
+		chrome.storage.local.set({'haxAlpha': sliderInput.value}, function (obj) { })
+		};
+	
+	sliderDiv.append(sliderInput);
+	sliderDiv.append(sliderOutput);
+	
 	var addonSection = document.createElement('div');
 	addonSettings.appendChild(addonSection);
 	addonSettings.appendChild(copyright());
 	addonSection.className = 'section selected';
-	addonSection.appendChild(configElem('haxSearchConfig',true,'Search bar by Raamyy and xenon'));
-	addonSection.appendChild(configElem('haxAutoJoinConfig',true,'Room AutoJoin by xenon'));
-	addonSection.appendChild(configElem('haxKickBanConfig',false,'Room Kick/Ban shortcuts by xenon'));
-	addonSection.appendChild(configElem('haxMuteConfig',true,'Local mute by xenon'));
-	addonSection.appendChild(configElem('haxNotifConfig',false,'Game notifications by xenon'));
-	addonSection.appendChild(configElem('haxTransChatConfig',false,'Transparent chat by xenon and Pacific'));
-	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys by xenon'));
+	addonSection.appendChild(configElem('haxSearchConfig',true,'Search bar (Raamyy)'));
+	addonSection.appendChild(configElem('haxAutoJoinConfig',true,'Room AutoJoin'));
+	addonSection.appendChild(configElem('haxKickBanConfig',false,'Room Kick/Ban shortcuts (double click)'));
+	addonSection.appendChild(configElem('haxMuteConfig',true,'Local mute'));
+	addonSection.appendChild(configElem('haxNotifConfig',false,'Game notifications'));
+	addonSection.appendChild(configElem('haxTransChatConfig',false,'Transparent chat (Pacific)'));
+	addonSection.appendChild(sliderDiv);
+	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys'));
 	
 	if (currentView == 'choose-nickname-view') {
 		var nicknameView = el.contentWindow.document.getElementsByClassName('choose-nickname-view')[0];
@@ -685,16 +746,10 @@ moduleObserver = new MutationObserver(function(mutations) {
 					var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 					var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
-					bottomSec.removeAttribute('style');;
-					
-					chrome.storage.local.get({'haxTransChatConfig' : false},
-					function (items) {
-						if (items.haxTransChatConfig) { 
-							bottomSec.removeAttribute('style');
-						}
-					});
-					
+					bottomSec.removeAttribute('style');
 					gameframe.contentWindow.document.onkeydown = null;
+					chatInput.onkeydown = null;
+					
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
