@@ -332,9 +332,9 @@ function toggleChatKb() {
 				bottomSec.style.left = '0px';
 				bottomSec.style.right = '0px';
 				bottomSec.style.bottom = '0px';
-				bottomSec.style.background = '#1A2125' + 'items.haxAlpha';
+				bottomSec.style.background = '#1A2125' + items.haxAlpha;
 				statSec.style.background = 'unset';
-				chatInput.style.background = '#1A2125' + 'items.haxAlpha';
+				chatInput.style.background = '#1A2125' + items.haxAlpha;
 				}
 			})
 			chatLog.scrollTo(0, chatLog.scrollHeight);
