@@ -346,7 +346,8 @@ function toggleChatKb() {
 					}
 			})
 		if (f.code == 'KeyR') {
-			record();
+			chrome.storage.local.get({'haxRecordHotkey' : false},
+				function (items) { if (items.haxRecordHotkey) { record() }})
 		}
 	}
 }
@@ -388,7 +389,6 @@ function changeView(viewIndex) {
 }
 
 function record() {
-	var gameframe = document.getElementsByClassName('gameframe')[0];
 	gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
 	var recBtn = waitForElement('[data-hook="rec-btn"]');
 	recBtn.then(function (btn) { btn.click() });
@@ -475,6 +475,7 @@ function addonSettingsPopup(currentView) {
 	var addonSettings = document.createElement('div');
 	addonSettings.className = 'dialog settings-view';
 	addonSettings.style.display = 'none';
+	addonSettings.style.maxHeight = '450px';
 
 	var addonSettingsHeader = document.createElement('h1');
 	addonSettingsHeader.innerText = 'Add-on Settings';
@@ -526,6 +527,7 @@ function addonSettingsPopup(currentView) {
 	addonSection.appendChild(configElem('haxTransChatConfig',false,'Transparent chat (Pacific)'));
 	addonSection.appendChild(sliderDiv);
 	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys'));
+	addonSection.appendChild(configElem('haxRecordHotkey',false,'Record hotkey R'));
 	
 	if (currentView == 'choose-nickname-view') {
 		var nicknameView = el.contentWindow.document.getElementsByClassName('choose-nickname-view')[0];
