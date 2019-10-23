@@ -3,6 +3,12 @@ var el = document.getElementsByClassName("gameframe")[0];
 var muteAllToggle = false;
 var myNick;
 
+// for kick/ban buttons
+var dblDiv = document.createElement('div');
+var dblTxt = document.createTextNode('Double click!');
+dblDiv.appendChild(dblTxt);
+dblDiv.style = 'visibility: hidden; position: fixed; background-color: #0004';
+
 function copyright() {
 	var copyright = document.createElement('p');
 	var gitLink = document.createElement('a');
@@ -170,12 +176,6 @@ function check() {
 // admin kick/ban shortcuts by xenon
 function createKickBanButtons(x, admin) {
 	var displayCheck = (admin ? 'inline' : 'none');
-	
-	var dblDiv = document.createElement('div');
-	var dblTxt = document.createTextNode('Double click!');
-	dblDiv.appendChild(dblTxt);
-	dblDiv.style = 'visibility: hidden; position: fixed; background-color: #0004';
-	x.appendChild(dblDiv);
 	
 	kickBtn = document.createElement('button');
 	kickBtn.style = 'padding: 2px 3px';
@@ -751,7 +751,6 @@ moduleObserver = new MutationObserver(function(mutations) {
 					bottomSec.removeAttribute('style');
 					gameframe.contentWindow.document.onkeydown = null;
 					chatInput.onkeydown = null;
-					
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
@@ -759,6 +758,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 						var players = gameframe.contentWindow.document.querySelectorAll('[class^=player-list-item]');
 						var adminStatus = (gameframe.contentWindow.document.querySelector("[class$='view admin']") !== null);
 						players.forEach(x => checkForButtons(x, adminStatus));
+						gameframe.contentWindow.document.getElementsByTagName('body')[0].appendChild(dblDiv);
 					}
 				});
 				
