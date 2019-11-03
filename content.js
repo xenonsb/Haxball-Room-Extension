@@ -1,6 +1,8 @@
 // attach to initial iFrame load
 var el = document.getElementsByClassName("gameframe")[0];
 var muteAllToggle = false;
+var autoJoinObserver;
+var refreshCycle;
 var myNick;
 
 // for kick/ban buttons
@@ -68,7 +70,7 @@ function createSearch(){
 		input.value = result.haxRoomSearchTerm;
 		refreshButton.click();
 	});
-	input.placeholder = "Enter room name and press [ENTER] - Haxball Search Bar by Raamyy and xenon";
+	input.placeholder = "Term1 Term2+Term3/RoomMax - Search bar by Raamyy and xenon";
 	input.autocomplete = "off";
 	
 	input.oninput = function(e) {
@@ -83,17 +85,23 @@ function createSearch(){
 		if(e.keyCode === 27) { input.value = ''; }
 		searchForRoom();
 	};
-
+	
+	var searchExample = document.createElement('p');
+	searchExample.innerText = 'Search: separate keywords by space, optional keywords by +, room capacity by /\nExample: "Hax Ball+pro/18" finds 18-player rooms with "Hax" and "Ball", OR "pro"'
+	
 	insertPos = dialog.querySelector('h1').nextElementSibling;
-	insertPos.parentNode.insertBefore(input, insertPos.nextElementSibling);
+	insertPos.parentNode.insertBefore(searchExample, insertPos.nextElementSibling);
+	insertPos.parentNode.insertBefore(input, searchExample.nextElementSibling);
+	
+	
 }
 
 // search bar by Raamyy and xenon
 function searchForRoom() {
 	var gameframe = document.getElementsByClassName("gameframe")[0];
 	var dialog = gameframe.contentDocument.getElementsByClassName("dialog")[0];
-	input = gameframe.contentWindow.document.getElementById('searchRoom');
-    searchRoom = input.value.toLowerCase();
+	var input = gameframe.contentWindow.document.getElementById('searchRoom');
+    var searchRoom = input.value.toLowerCase();
 	chrome.storage.local.set({'haxRoomSearchTerm': input.value}, function (obj) { });
     var roomTable = dialog.querySelectorAll("[data-hook='list']")[0]
     var totalNumberOfPlayers = 0;
@@ -102,10 +110,18 @@ function searchForRoom() {
     for(room of roomTable.rows) {
         var roomName = room.querySelectorAll("[data-hook='name']")[0].innerText;
         var roomNumPlayers = room.querySelectorAll("[data-hook='players']")[0].innerText.split('/')[0];
-        roomName = roomName.toLowerCase();
-	
-		var searchTerms = searchRoom.split('+').filter(x => x != '');
-		if (searchTerms.some(x => roomName.includes(x) || roomName.replace(/\s/g,'').includes(x)) || searchRoom == '') {
+		var roomMaxPlayers = room.querySelectorAll("[data-hook='players']")[0].innerText.split('/')[1];
+        var roomName = roomName.toLowerCase();
+		var rexp = /([^\/]+)?\/?(\d+)?/.exec(searchRoom)
+		
+		var playerTest = (typeof(rexp[2]) === 'undefined' || rexp[2] == roomMaxPlayers);
+		var searchTerms = rexp[1] ? rexp[1].split('+').filter(x => x != '') : [];
+		
+		function myIncl(roomName, terms) {
+			return terms.split(' ').every(x => roomName.includes(x));
+		}
+		
+		if ((searchTerms.some(x => myIncl(roomName, x) || myIncl(roomName.replace(/\s/g,''), x)) || !searchTerms.length) && playerTest) {
 			room.hidden = false;
 			totalNumberOfPlayers += parseInt(roomNumPlayers);
 			totalNumberOfRooms++;
@@ -124,7 +140,7 @@ function createButton() {
 
 	var autoJoinButton = document.createElement('button');
 	autoJoinButton.setAttribute('data-hook', 'autoJoin');
-	autoJoinButton.onclick = check;
+	autoJoinButton.onclick = function () { check(this); };
 	
 	var loginIcon = document.createElement('i');
 	loginIcon.className = 'icon-login';
@@ -140,17 +156,19 @@ function createButton() {
 
 // autoJoin by xenon
 function check() {
+	var el = document.documentElement.getElementsByClassName("gameframe")[0];
+	var autoJoinButton = el.contentWindow.document.querySelector('button[data-hook="autoJoin"]');
+	var refreshButton = el.contentWindow.document.querySelector('button[data-hook="refresh"]');
+	
 	try { 
-		var el = document.documentElement.getElementsByClassName("gameframe")[0];
-		var refreshButton = el.contentWindow.document.querySelector('button[data-hook="refresh"]');
 		var selectedRoom = el.contentWindow.document.querySelector('tr.selected').childNodes;
 		var roomName = selectedRoom[0].innerText;
 		var roomPlayers = selectedRoom[1].innerText;
 		var roomDist = selectedRoom[3].innerText;
+	
+		refreshCycle = setInterval((function() { refreshButton.click() }), 500);
 		
-		var refreshCycle = setInterval((function() { refreshButton.click() }), 500);
-		
-		var autoJoinObserver = new MutationObserver(function(mutations) {
+		autoJoinObserver = new MutationObserver(function(mutations) {
 			mutations.forEach(function(mutation) {
 				if (!refreshButton.disabled) {
 					rooms = el.contentWindow.document.querySelectorAll('tr');
@@ -168,9 +186,22 @@ function check() {
 			});
 		});
 		autoJoinObserver.observe(refreshButton, {attributes: true});
+		autoJoinButton.lastChild.innerText = 'Joining';
 	}
-	catch { 
-		alert('You must select a room first'); }
+	
+	catch {
+		if (autoJoinButton.lastChild.innerText == 'AutoJoin') {
+			alert('You must select a room first');
+		}
+		else {
+			try {
+				autoJoinObserver.disconnect();
+				clearInterval(refreshCycle);
+				autoJoinButton.lastChild.innerText = 'Autojoin';
+			}
+			catch { }
+		}
+	}
 }
 
 // admin kick/ban shortcuts by xenon
@@ -347,7 +378,7 @@ function toggleChatKb() {
 			})
 		if (f.code == 'KeyR') {
 			chrome.storage.local.get({'haxRecordHotkey' : false},
-				function (items) { if (items.haxRecordHotkey) { record() }})
+				function (items) { if (items.haxRecordHotkey) { record(true) }})
 		}
 	}
 }
@@ -388,11 +419,17 @@ function changeView(viewIndex) {
 	}
 }
 
-function record() {
-	gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
-	var recBtn = waitForElement('[data-hook="rec-btn"]');
-	recBtn.then(function (btn) { btn.click() });
-	gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
+function record(gameview = true) {
+	var gameframe = document.getElementsByClassName('gameframe')[0];
+	if (gameview) {
+		gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
+		var recBtn = waitForElement('[data-hook="rec-btn"]');
+		recBtn.then(function (btn) { btn.click() });
+		gameframe.contentWindow.document.querySelector('[data-hook="menu"]').click();
+	}
+	else {
+		gameframe.contentWindow.document.querySelector('[data-hook="rec-btn"]').click();
+	}
 }
 
 chatObserver = new MutationObserver(function(mutations) {
@@ -464,6 +501,37 @@ function configElem(id, def = false, desc) {
 		var obj = {[id] : setStatus};
 		chrome.storage.local.set(obj, function (result) {} );
 		icon.className = setStatus ? 'icon-ok' : 'icon-cancel';
+		if (id === 'haxTransChatConfig') {
+			var gameframe = document.getElementsByClassName('gameframe')[0];
+			var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+			var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
+			var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+			try {
+				if (setStatus) { 
+					chrome.storage.local.get({'haxTransChatConfig' : false},
+						function (items) {
+							chatFormat(bottomSec,statSec,chatInput,'absolute');
+						});
+				}
+				else {
+					bottomSec.removeAttribute('style');
+				}
+			}
+			catch(e) { }
+		}
+		if (id === 'haxShortcutConfig') {
+			var gameframe = document.getElementsByClassName('gameframe')[0];
+			var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+			try {
+				if (setStatus) {
+					chatInput.addEventListener("keypress", chatListener);
+				}
+				else {
+					chatInput.removeEventListener("keypress", chatListener);
+				}
+			}
+			catch(e) { }
+		}
 	}
 	
 	newConfig.appendChild(icon);
@@ -475,7 +543,7 @@ function addonSettingsPopup(currentView) {
 	var addonSettings = document.createElement('div');
 	addonSettings.className = 'dialog settings-view';
 	addonSettings.style.display = 'none';
-	addonSettings.style.maxHeight = '450px';
+	addonSettings.style.maxHeight = '500px';
 
 	var addonSettingsHeader = document.createElement('h1');
 	addonSettingsHeader.innerText = 'Add-on Settings';
@@ -510,10 +578,31 @@ function addonSettingsPopup(currentView) {
 	sliderInput.oninput = function () { 
 		sliderOutput.value = sliderInput.value + "%";
 		chrome.storage.local.set({'haxAlpha': sliderInput.value}, function (obj) { })
+		try {
+			var gameframe = document.getElementsByClassName('gameframe')[0];
+			var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
+			var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
+			var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+		chrome.storage.local.get({'haxTransChatConfig' : false},
+			function (items) {
+				if (items.haxTransChatConfig) { 
+					chatFormat(bottomSec,statSec,chatInput,'absolute');
+				}
+			});
+		}
+		catch(e) { }
 		};
 	
 	sliderDiv.append(sliderInput);
 	sliderDiv.append(sliderOutput);
+	
+	var shortcutDiv = document.createElement('div');
+	shortcutDiv.align = 'center';
+	
+	var shortcutPopup = document.createElement('a');
+	shortcutPopup.onclick = function () { chrome.runtime.sendMessage({type: 'popup'}); };
+	shortcutPopup.innerText = 'Configure shortcuts';
+	shortcutDiv.append(shortcutPopup);
 	
 	var addonSection = document.createElement('div');
 	addonSettings.appendChild(addonSection);
@@ -528,6 +617,9 @@ function addonSettingsPopup(currentView) {
 	addonSection.appendChild(sliderDiv);
 	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys'));
 	addonSection.appendChild(configElem('haxRecordHotkey',false,'Record hotkey R'));
+	addonSection.appendChild(configElem('haxShortcutConfig',false,'Chat text expansion shortcuts'));
+	addonSection.appendChild(shortcutDiv);
+	
 	
 	if (currentView == 'choose-nickname-view') {
 		var nicknameView = el.contentWindow.document.getElementsByClassName('choose-nickname-view')[0];
@@ -569,7 +661,7 @@ function addonSettingsPopup(currentView) {
 		addonSettings.style.marginRight = 'auto';
 		topSec.parentNode.appendChild(addonSettings);
 		
-		addonSettingsClose.append(' - press ESC twice to apply');
+		// addonSettingsClose.append(' - press ESC twice to apply');
 		
 		addonSettingsClose.onclick = function () {
 			addonSettings.style.display = 'none';
@@ -581,6 +673,35 @@ function addonSettingsPopup(currentView) {
 		
 		settingButton.parentNode.appendChild(addonSettingsOpen);
 	}
+}
+
+// text expansion stuffs
+var chatShortcuts;
+var chatTimer;
+var expandRe;
+
+RegExp.escape= function(s) {
+    return s.replace(/[-\/\\^$*+!?.()[\]{}]/g, '\\$&');
+};
+
+chatExpand = function() {
+	var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+	chrome.storage.local.get({'haxShortcut': '{"/h1":"/handicap 100","/e1":"/extrapolation 10"}'}, function (items) {
+		chatShortcuts = JSON.parse(items.haxShortcut);
+		expandRe = new RegExp("^(" + RegExp.escape(Object.keys(chatShortcuts).join("|")) + ")$", "g");
+	});
+	
+	chrome.storage.local.get({'haxShortcutConfig': false}, function (items) {
+		if (items.haxShortcutConfig) {
+			chatInput.value = chatInput.value.replace(expandRe, function($0, $1) {
+				return chatShortcuts[$1.replace('\\','').toLowerCase()]; } )
+		}});
+}
+
+chatListener = function () {
+	clearTimeout(chatTimer);
+	chatTimer = setTimeout(chatExpand, 100);
 }
 
 // main observer to detect changes to views
@@ -643,6 +764,8 @@ moduleObserver = new MutationObserver(function(mutations) {
 				var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 				var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 				chatInput.placeholder = 'Press key below ESC to toggle chat hide';
+				
+				chatInput.addEventListener("keypress", chatListener);
 				
 				chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
@@ -749,8 +872,13 @@ moduleObserver = new MutationObserver(function(mutations) {
 					var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 					var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 					bottomSec.removeAttribute('style');
-					gameframe.contentWindow.document.onkeydown = null;
-					chatInput.onkeydown = null;
+					gameframe.contentWindow.document.onkeydown = function (f) {
+						if (f.code == 'KeyR') {
+							chrome.storage.local.get({'haxRecordHotkey' : false},
+								function (items) { if (items.haxRecordHotkey) { record(false) }})
+						}
+					}
+					
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {

@@ -9,6 +9,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		chrome.notifications.clear('team', function () {});
 		chrome.notifications.create('team', request.opt, function(){})
 	}
+	if(request.type === "popup"){
+		chrome.runtime.openOptionsPage();
+	}
 	chrome.notifications.onClicked.addListener(function (notifId) {
 			chrome.windows.update(sender.tab.windowId, {"focused": true}, function(window){ });
 			chrome.tabs.update(sender.tab.id, {"active": true}, function(tab){ });
