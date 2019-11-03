@@ -4,6 +4,14 @@
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
+**New in version 0.3.4**: New options page and text expansion macros! In light of the bot-hosted rooms nowadays with a bunch of commands, why not have text expansions? For instance, if you constantly need to type "!admin" to chat, you can assign it as ".ad" and that will automatically expand to "!admin". Also, I've made a few fixes to the record shortcut (press R to record) and improved the add-on settings changes in-game. To configure text shortcuts, go to the add-on options and press configure shortcuts.
+
+**New in version 0.3.1**: due to mis-use of kick/ban shortcuts, they're now set to double-click. Also, chat transparency is now user-customizable - enjoy! There's also a hidden feature baked in this update.. can you find it? :D (ok it's press R in-game to record replay, simple!)
+
+**New in version 0.3.0**: fixed the chat hide toggle key to the key under ESC! No matter what keyboard layout you are, just find the key right below ESC!
+
+**New in version 0.2.4**: added hotkeys to access other camera views (press 5, 6, 7, or 8 while in-game), links in chat will now be "clickable" hyperlinks that open in a new tab, minor fixes to hiding chat
+
 **New in version 0.2.2**: overhaul of add-on settings in the nickname selection page, also the option to hide chat completely (not just transparency!) The chat toggle is at the top (game goals/time bar). When chat is hidden, you can still use the "Tab" key to quickly access chat. In addition, use the top left key of your keyboard (~ or ") to quickly show/hide the chat area.
 
 **New in version 0.1.9**: woohoo, transparent chat! Who doesn't want more screen estate to see more of the field?
@@ -41,3 +49,13 @@ Haxball All-in-one Tool adds a few time-saving features to the existing HTML5 ve
 **✓ (Beta) Notification when you're moved into a team**: forgot to check the Haxball tab? You'll get a desktop notification when you are moved into a team. Be aware that this is still a beta function!
 
 **✓ Transparent chat**: want to see chat but also see more of the field? You now have it :D Credits to P a c i f i c for helping with the implementation :)
+
+**✓ Hide chat toggle**: if you really want to focus on the game without the transparent chat log, now you have it! Press the hide chat toggle on the score/time bar (or using the ~ key or " key on the top left of your keyboard), and it'll show/hide your chat :) But if you still need to chat quickly, just press "Tab" and chat normally
+
+**✓ Other camera views**: maybe 1.5x zoom isn't enough for you, feel free to use anything from 1.75X onwards by using the hotkeys 5, 6, 7, or 8 in-game
+
+**✓ Link formatted in chat**: it is now easier to click on links sent by other players through chat
+
+**✓ Record hotkey R**: when in game or in a lobby, press R to begin/stop recording
+
+**✓ Text expansion macros**: for quicker typing of constantly used commands/terms, you can now do so! The options for this is tucked into the add-on settings, or can be accessed through extension menu/add-ons menu under options/preferences.
