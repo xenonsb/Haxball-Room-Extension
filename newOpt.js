@@ -20,7 +20,11 @@ const defaultSettings = {
 	'haxViewModeConfig': false,
 	'haxRecordHotkey': false,
 	'haxShortcutConfig': false,
-	'haxShortcut': '{"/h1":"/handicap 100","/e1":"/extrapolation 10"}'
+	'haxShortcut':`{
+"/h1":"/handicap 100",
+"/e1":"/extrapolation 10"
+}`
+
 }
 
 const enableAllSettings = {
