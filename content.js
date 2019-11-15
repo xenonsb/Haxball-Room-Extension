@@ -508,10 +508,7 @@ function configElem(id, def = false, desc) {
 			var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 			try {
 				if (setStatus) { 
-					chrome.storage.local.get({'haxTransChatConfig' : false},
-						function (items) {
-							chatFormat(bottomSec,statSec,chatInput,'absolute');
-						});
+					chatFormat(bottomSec,statSec,chatInput,'absolute');
 				}
 				else {
 					bottomSec.removeAttribute('style');
@@ -532,6 +529,32 @@ function configElem(id, def = false, desc) {
 			}
 			catch(e) { }
 		}
+		if (id === 'haxKickBanConfig') {
+			var gameframe = document.getElementsByClassName('gameframe')[0];
+			try {
+				var players = gameframe.contentWindow.document.querySelectorAll('[class^=player-list-item]');
+				var adminStatus = (gameframe.contentWindow.document.querySelector("[class$='view admin']") !== null);
+				if (setStatus) {
+					players.forEach(x => checkForButtons(x, adminStatus));
+				}
+				else {
+					players.forEach(x => checkForButtons(x, false));
+				}
+			}
+			catch(e) { }
+		}
+		if (id === 'haxTimerConfig') {
+			var gameframe = document.getElementsByClassName('gameframe')[0];
+			try {
+				if (setStatus) {
+					timer.style.display = 'unset';
+				}
+				else {
+					timer.style.display = 'none';
+				}
+			}
+			catch(e) { }
+		}
 	}
 	
 	newConfig.appendChild(icon);
@@ -543,7 +566,7 @@ function addonSettingsPopup(currentView) {
 	var addonSettings = document.createElement('div');
 	addonSettings.className = 'dialog settings-view';
 	addonSettings.style.display = 'none';
-	addonSettings.style.maxHeight = '500px';
+	addonSettings.style.maxHeight = '550px';
 
 	var addonSettingsHeader = document.createElement('h1');
 	addonSettingsHeader.innerText = 'Add-on Settings';
@@ -611,14 +634,16 @@ function addonSettingsPopup(currentView) {
 	addonSection.appendChild(configElem('haxSearchConfig',true,'Search bar (Raamyy)'));
 	addonSection.appendChild(configElem('haxAutoJoinConfig',true,'Room AutoJoin'));
 	addonSection.appendChild(configElem('haxKickBanConfig',false,'Room Kick/Ban shortcuts (double click)'));
+	addonSection.appendChild(configElem('haxHideNavConfig',true,'Hide NavBar by default'));
 	addonSection.appendChild(configElem('haxMuteConfig',true,'Local mute'));
 	addonSection.appendChild(configElem('haxNotifConfig',false,'Game notifications'));
 	addonSection.appendChild(configElem('haxTransChatConfig',false,'Transparent chat (Pacific)'));
 	addonSection.appendChild(sliderDiv);
 	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys'));
 	addonSection.appendChild(configElem('haxRecordHotkey',false,'Record hotkey R'));
-	addonSection.appendChild(configElem('haxShortcutConfig',false,'Chat text expansion shortcuts'));
+	addonSection.appendChild(configElem('haxShortcutConfig',false,'Chat text expansion and 😃 shortcuts'));
 	addonSection.appendChild(shortcutDiv);
+	addonSection.appendChild(configElem('haxTimerConfig',true,'Show in-game timer'));
 	
 	
 	if (currentView == 'choose-nickname-view') {
@@ -708,6 +733,36 @@ chatListener = function () {
 	chatTimer = setTimeout(chatExpand, 100);
 }
 
+// gametimer - haxTimerConfig
+var totSess;
+var curSess;
+var timerUpd;
+var timer = document.createElement('div');
+timer.style = 'position: absolute; bottom: 0px; left: 0px; font-size: 14px; visibility: none';
+timer.id = 'gametimer';
+
+function dhm(t){
+    var cd = 24 * 60 * 60 * 1000,
+        ch = 60 * 60 * 1000,
+        d = Math.floor(t / cd),
+        h = Math.floor( (t - d * cd) / ch),
+        m = Math.round( (t - d * cd - h * ch) / 60000),
+        pad = function(n){ return n < 10 ? '0' + n : n; };
+  if( m === 60 ){
+    h++;
+    m = 0;
+  }
+  if( h === 24 ){
+    d++;
+    h = 0;
+  }
+  return [d, pad(h), pad(m)].join(':');
+}
+
+chrome.storage.local.get({'haxTotSess': 0}, function (items) {
+	totSess = items.haxTotSess;
+});
+
 // main observer to detect changes to views
 moduleObserver = new MutationObserver(function(mutations) {
 	candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.className);
@@ -753,6 +808,8 @@ moduleObserver = new MutationObserver(function(mutations) {
 				}
 				
 				changeNickBtn.parentNode.insertBefore(addonSettingsBtn,changeNickBtn);
+				
+				clearInterval(timerUpd);
 				break;
 				
 			case tempView == "game-view":
@@ -795,9 +852,20 @@ moduleObserver = new MutationObserver(function(mutations) {
 				settingsWait.then(function (settingButton) {
 					navBar = document.getElementsByClassName('header')[0];
 					navBar.style.transition = 'height 0.3s';
-					navBar.id = 'nothidden';
 					hideNavBar = document.createElement('button');
-					hideNavBar.innerText = 'Hide Navbar';
+					
+					chrome.storage.local.get({'haxHideNavConfig' : true}, function (items) {
+						if (items.haxHideNavConfig) {
+							hideNavBar.innerText = 'Show Navbar';
+							navBar.style.height = '0px';
+						}
+						else {
+							navBar.setAttribute('id','nothidden'); 
+							hideNavBar.innerText = 'Hide Navbar';
+							navBar.style.height = '35px';
+						}
+					});
+					
 					hideNavBar.onclick = function () {
 						if (navBar.hasAttribute('id')) { 
 							navBar.removeAttribute('id','nothidden');
@@ -850,6 +918,22 @@ moduleObserver = new MutationObserver(function(mutations) {
 						chatInput.parentNode.insertBefore(emojiDoc, chatInput.parentNode.lastChild.previousSibling);
 					}
 				});
+				
+				var joinTime = new Date();
+				var timerPos = document.getElementsByClassName('header')[0];
+				timerPos.insertBefore(timer, timerPos.firstChild);
+				chrome.storage.local.get({'haxTimerConfig': true}, function (items) {
+					if (items.haxTimerConfig) {		
+						timer.style.visibility = 'unset';
+					}
+				});
+				
+				timerUpd = setInterval(function () {
+					curSess = new Date() - joinTime;
+					totSess += 1000;
+					timer.innerText = `Current: ${dhm(curSess)} | Total: ${dhm(totSess)}`
+					chrome.storage.local.set({'haxTotSess': totSess}, function () {});
+				}, 1000);
 				break;
 			case tempView == "dialog":
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
