@@ -171,8 +171,8 @@ function check() {
 		autoJoinObserver = new MutationObserver(function(mutations) {
 			mutations.forEach(function(mutation) {
 				if (!refreshButton.disabled) {
-					rooms = el.contentWindow.document.querySelectorAll('tr');
-					joinRoom = Array.from(rooms).filter(el => el.textContent.includes(roomName) && el.textContent.includes(roomDist))[0];
+					rooms = el.contentWindow.document.querySelectorAll('td');
+					joinRoom = Array.from(rooms).filter(el => el.innerText == roomName && el.parentNode.textContent.includes(roomDist))[0];
 					
 					players = joinRoom.childNodes[1].innerText.split("/");
 					
