@@ -4,6 +4,8 @@ var muteAllToggle = false;
 var autoJoinObserver;
 var refreshCycle;
 var myNick;
+let currentPing;
+let currentMaxPing;
 
 // for kick/ban buttons
 var dblDiv = document.createElement('div');
@@ -934,6 +936,44 @@ moduleObserver = new MutationObserver(function(mutations) {
 					timer.innerText = `Current: ${dhm(curSess)} | Total: ${dhm(totSess)}`
 					chrome.storage.local.set({'haxTotSess': totSess}, function () {});
 				}, 1000);
+
+				
+				stats = waitForElement(".stats-view");
+				stats.then(function(ela){		
+					ping = statSec.childNodes[0].childNodes[1]
+					maxPing = statSec.childNodes[1].childNodes[1]
+					fps = statSec.childNodes[2].childNodes[1]
+					ping.setAttribute("id", "ping")
+					maxPing.setAttribute("id", "maxPing")
+					fps.setAttribute("id", "fps")
+
+					statsObserver = new MutationObserver(function(mutations) {
+						mutes = [...mutations]
+
+							if(mutes.length > 0 && mutes.length < 2){
+								onlyMute = mutes[0];
+								
+								if (onlyMute.target.id == "ping") {
+									currentPing = [...onlyMute.addedNodes][0].textContent;	
+								} else if (onlyMute.target.id == "maxPing") {
+									currentMaxPing = [...onlyMute.addedNodes][0].textContent;
+								} else {/* console.log('fps change') */}
+							} else if(mutes.length > 1) {
+								muteOne = mutes[0]
+								muteTwo = mutes[1]
+								if (muteOne.target.id == "ping" && muteTwo.target.id == "maxPing") {
+									currentPing = [...muteOne.addedNodes][0].textContent;	
+									currentMaxPing = [...muteTwo.addedNodes][0].textContent;	
+								} else if (muteOne.target.id == "maxPing" && muteTwo.target.id == "ping") {
+									currentPing = [...muteTwo.addedNodes][0].textContent;
+									currentMaxPing = [...muteOne.addedNodes][0].textContent;
+								} else { /* console.log('fps change') */  }
+							}
+					}); 
+					statsObserver.observe(ela, {childList: true, subtree: true} );
+				});
+
+
 				break;
 			case tempView == "dialog":
 				chrome.storage.local.get({'haxMuteConfig' : true}, function (items) {
