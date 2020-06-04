@@ -1,5 +1,9 @@
 # Haxball All-in-one Tool
 
+**Side note**: I haven't been that active with updates lately, but re-publishing to Chrome WebStore will take some time for manual approval. Consider installing this extension "unpacked" using developer mode if you want the latest update (that comes with the autojoin fix!)
+
+To do so, download all the files within this repository into a folder, and follow the instructions at [https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/](https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/) to locate manifest.json.
+
 **Chrome Web Store**: [https://chrome.google.com/webstore/detail/oobhbkpciiodddpiaknpdhccmdjnlkde](https://chrome.google.com/webstore/detail/oobhbkpciiodddpiaknpdhccmdjnlkde)
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
