@@ -172,7 +172,7 @@ function check() {
 			mutations.forEach(function(mutation) {
 				if (!refreshButton.disabled) {
 					rooms = el.contentWindow.document.querySelectorAll('td');
-					joinRoom = Array.from(rooms).filter(el => el.innerText == roomName && el.parentNode.textContent.includes(roomDist))[0];
+					joinRoom = Array.from(rooms).filter(el => el.innerText == roomName && el.parentNode.textContent.includes(roomDist))[0].parentNode;
 					
 					players = joinRoom.childNodes[1].innerText.split("/");
 					
