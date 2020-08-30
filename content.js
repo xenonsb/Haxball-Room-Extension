@@ -896,6 +896,9 @@ moduleObserver = new MutationObserver(function(mutations) {
 						var popupWait = waitForElement('div.dialog');
 						popupWait.then(function (popup) {
 							var name = popup.firstChild.innerText;
+							if (name === 'Add-on Settings') {
+								return
+							}
 							var muteBtn = document.createElement('button');
 							muteBtn.className = 'mb';
 							popup.insertBefore(muteBtn, popup.lastChild);
