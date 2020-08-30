@@ -1,12 +1,14 @@
 # Haxball All-in-one Tool
 
-**Side note**: I haven't been that active with updates lately, but re-publishing to Chrome WebStore will take some time for manual approval. Consider installing this extension "unpacked" using developer mode if you want the latest update (that comes with the autojoin fix!)
+**Side note**: I haven't been that active with updates lately, but hopefully I can push some semi-frequent updates :) - August 2020
 
 To do so, download all the files within this repository into a folder, and follow the instructions at [https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/](https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/) to locate manifest.json.
 
 **Chrome Web Store**: [https://chrome.google.com/webstore/detail/oobhbkpciiodddpiaknpdhccmdjnlkde](https://chrome.google.com/webstore/detail/oobhbkpciiodddpiaknpdhccmdjnlkde)
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
+
+**New in version 0.3.8**: Right click to tag! Within chat log, you can right click someone's chat message to @Mention them. Also, you can also right click their name from the room player view to @Mention them.
 
 **New in version 0.3.4**: New options page and text expansion macros! In light of the bot-hosted rooms nowadays with a bunch of commands, why not have text expansions? For instance, if you constantly need to type "!admin" to chat, you can assign it as ".ad" and that will automatically expand to "!admin". Also, I've made a few fixes to the record shortcut (press R to record) and improved the add-on settings changes in-game. To configure text shortcuts, go to the add-on options and press configure shortcuts.
 
