@@ -466,6 +466,21 @@ chatObserver = new MutationObserver(function(mutations) {
 		});
 		
 		chatLine.innerHTML = linkify(chatLine.innerHTML);
+
+		// right click to tag
+		chatLine.oncontextmenu = function () {
+			if (chatLine.innerText.includes(': ')) {
+				if (chatInput.value !== null) {
+					chatInput.value += ' @' + chatLine.innerText.split(': ')[0] + ' ';
+					chatInput.focus();
+				}
+				else {
+					chatInput.value = '@' + chatLine.innerText.split(': ')[0];
+					chatInput.focus();
+				}
+				return false;
+			}
+		}
 	}
 	candidates.forEach(x => chatCheck(x));
 })
@@ -900,6 +915,26 @@ moduleObserver = new MutationObserver(function(mutations) {
 									muteBtn.innerText = 'Unmute';
 									}
 							}
+
+							// tag stuff start here
+							var tagBtn = document.createElement('button');
+							tagBtn.className = 'tag';
+							tagBtn.innerText = '@Mention'
+							popup.insertBefore(tagBtn, popup.lastChild);
+							tagBtn.onclick = function() {
+								var gameframe = document.getElementsByClassName('gameframe')[0];
+								var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+								if (chatInput.value !== null) {
+									chatInput.value += ' @' + name + ' ';
+									popup.lastChild.click();
+									chatInput.focus();
+								}
+								else {
+									chatInput.value = '@' + name + ' ';
+									popup.lastChild.click();
+									chatInput.focus();
+								}
+							}
 						});}})
 				break;
 			case Boolean(tempView.match(/^(room-view|player-list-item|notice)/)):				
@@ -917,7 +952,6 @@ moduleObserver = new MutationObserver(function(mutations) {
 								function (items) { if (items.haxRecordHotkey) { record(false) }})
 						}
 					}
-					
 				}
 				
 				chrome.storage.local.get({'haxKickBanConfig' : false}, function (items) {
