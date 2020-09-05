@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		chrome.runtime.openOptionsPage();
 	}
 	if(request.type === "emoji") {
-		chrome.windows.create({url: chrome.runtime.getURL("emojiLookup.html"),
+		chrome.windows.create({url: chrome.runtime.getURL("emoji_lookup.html"),
 							width: 250,
 							height: 400,
 							top: 0,
