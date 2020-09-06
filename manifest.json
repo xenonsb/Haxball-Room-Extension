@@ -15,7 +15,13 @@
 			 "js/content.js"],
 		"run_at": "document_idle"
       }
-    ],
+	],
+	"browser_action": {
+		"default_icon": "icons/icon.png"
+	},
+	"icons": {
+		"48": "icons/icon.png"
+	},
 	"options_ui": {
 		"page" : "new_option.html",
 		"open_in_tab" : true},
