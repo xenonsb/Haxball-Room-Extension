@@ -133,15 +133,26 @@ chatObserver = new MutationObserver(function(mutations) {
 
 		// right click to tag
 		chatLine.oncontextmenu = function () {
-			if (chatLine.innerText.includes(': ')) {
+			if (chatLine.innerText.includes(':')) {
+				var chatAuthor = chatLine.innerText.split(':')[0].replace(' ', '_');
 				if (chatInput.value !== null) {
-					chatInput.value += ' @' + chatLine.innerText.split(': ')[0] + ' ';
-					chatInput.focus();
+					chatInput.value += ' @' + chatAuthor + ' ';
 				}
 				else {
-					chatInput.value = '@' + chatLine.innerText.split(': ')[0];
-					chatInput.focus();
+					chatInput.value = '@' + chatAuthor + ' ';
 				}
+				chatInput.focus();
+				return false;
+			}
+			else if (chatLine.className === 'notice' && chatLine.innerText.match(noticeRe)) {
+				var chatAuthor = chatLine.innerText.match(noticeRe)[0].replace(' ', '_');
+				if (chatInput.value !== null) {
+					chatInput.value += ' @' + chatAuthor + ' ';
+				}
+				else {
+					chatInput.value = '@' + chatAuthor + ' ';
+				}
+				chatInput.focus();
 				return false;
 			}
 		}
@@ -158,6 +169,7 @@ var chatShortcuts;
 var chatTimer;
 var expandRe;
 const emojiRe = new RegExp("(" + RegExp.escape(Object.keys(emojiShortcuts).join("|")) + ")", "g");
+const noticeRe = RegExp('.*(?= (has joined|was moved))', 'g');
 
 // main observer to detect changes to views
 moduleObserver = new MutationObserver(function(mutations) {
@@ -351,13 +363,14 @@ moduleObserver = new MutationObserver(function(mutations) {
 							tagBtn.onclick = function() {
 								var gameframe = document.getElementsByClassName('gameframe')[0];
 								var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+								var tagName = name.replace(' ', '_');
 								if (chatInput.value !== null) {
-									chatInput.value += ' @' + name + ' ';
+									chatInput.value += ' @' + tagName + ' ';
 									popup.lastChild.click();
 									chatInput.focus();
 								}
 								else {
-									chatInput.value = '@' + name + ' ';
+									chatInput.value = '@' + tagName + ' ';
 									popup.lastChild.click();
 									chatInput.focus();
 								}
