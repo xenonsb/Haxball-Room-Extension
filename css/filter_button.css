@@ -17,6 +17,6 @@
   background-color: #1A2125;
   min-width: 100%;
   z-index: 1;
-  max-height:200px;
+  max-height: 300px;
   overflow-y:auto;
 }
