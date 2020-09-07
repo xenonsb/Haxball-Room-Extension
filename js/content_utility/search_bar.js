@@ -1,13 +1,17 @@
+var newDivWrapper = document.createElement('div');
+newDivWrapper.className = "dropdown";
+
 // search bar by Raamyy and xenon
 function createSearch(){
 	var gameframe = document.getElementsByClassName("gameframe")[0];
 	var dialog = gameframe.contentDocument.getElementsByClassName("dialog")[0];
 	var refreshButton = el.contentWindow.document.querySelector('button[data-hook="refresh"]');
-	
+
 	var joinButtonObserver = new MutationObserver(function(mutations) {
 			mutations.forEach(function(mutation) {
 				if (!refreshButton.disabled) {
 					searchForRoom();
+					updateAvailableCountries();
 					}
 			});
 		});
@@ -22,6 +26,7 @@ function createSearch(){
 	});
 	input.placeholder = "Term1 Term2+Term3/RoomMax - Search bar by Raamyy and xenon";
 	input.autocomplete = "off";
+	input.style.width = "70%";
 	
 	input.oninput = function(e) {
 		if(e.keyCode === 27) { input.value = ''; }
@@ -38,10 +43,25 @@ function createSearch(){
 	
 	var searchExample = document.createElement('p');
 	searchExample.innerText = 'Search example: Hax Ball+pro/14 finds rooms with Hax and Ball, OR pro (max players 14)';
-	
+
+	var button = document.createElement("BUTTON");
+	button.innerHTML = "Filter By Country";
+	button.id = "searchRoomByCountry"
+	button.className = "dropbtn";
+	button.style.width = "30%";
+
+	var style = document.createElement('link');
+	style.rel = 'stylesheet';
+	style.type = 'text/css';
+	style.href = chrome.extension.getURL('css/filter_button.css');
+
 	insertPos = dialog.querySelector('h1').nextElementSibling;
-	insertPos.parentNode.insertBefore(searchExample, insertPos.nextElementSibling);
-	insertPos.parentNode.insertBefore(input, searchExample.nextElementSibling);
+	insertPos.appendChild(style)
+	insertPos.parentNode.insertBefore(newDivWrapper, insertPos.nextElementSibling);
+
+	newDivWrapper.appendChild(searchExample);
+	newDivWrapper.appendChild(input);
+	newDivWrapper.appendChild(button);
 }
 
 // search bar by Raamyy and xenon
@@ -53,8 +73,8 @@ function searchForRoom() {
 	chrome.storage.local.set({'haxRoomSearchTerm': input.value}, function (obj) { });
     var roomTable = dialog.querySelectorAll("[data-hook='list']")[0]
     var totalNumberOfPlayers = 0;
-    var totalNumberOfRooms = 0;
-	
+	var totalNumberOfRooms = 0;
+
     for(room of roomTable.rows) {
         var roomName = room.querySelectorAll("[data-hook='name']")[0].innerText;
         var roomNumPlayers = room.querySelectorAll("[data-hook='players']")[0].innerText.split('/')[0];
@@ -79,4 +99,48 @@ function searchForRoom() {
     var roomsStats = dialog.querySelectorAll("[data-hook='count']")[0];
     roomsStats.innerText = totalNumberOfPlayers + " players in "+totalNumberOfRooms+" filtered rooms";
     dialog.querySelector("[data-hook='listscroll']").scrollTo(0,0);
+}
+
+var gameframe = document.getElementsByClassName("gameframe")[0];
+
+function updateAvailableCountries(){
+	var dialog = gameframe.contentDocument.getElementsByClassName("dialog")[0];
+	var flags = dialog.querySelectorAll("[data-hook='flag']");
+	var uniqueFlags = new Set();
+	for (i = 0; i < flags.length; i++) {
+		uniqueFlags.add(flags[i].getAttribute("class").replace('flagico f-',''));
+	}
+	countryCodes = Array.from(uniqueFlags).sort();
+	var button = gameframe.contentWindow.document.getElementById("searchRoomByCountry");
+	var dropDownDiv = document.createElement("div");
+	dropDownDiv.className = "dropdown-content";
+	dropDownDiv.classList.add("hidden");
+
+	console.log(countryCodes);
+
+	for (const code of countryCodes) {
+	  var list = document.createElement("li");
+	  var divItem = document.createElement("div");
+	  list.href = "#";
+	  divItem.className = "flagico f-" + code;
+	  list.innerHTML = code.charAt(0).toUpperCase() + code.slice(1);
+	  list.appendChild(divItem);
+	  dropDownDiv.appendChild(list);
+	}
+	button.appendChild(dropDownDiv);
+}
+
+
+/* When the user clicks on the button, 
+toggle between hiding and showing the dropdown content */
+function buttonClick() {
+	var dropdowns = gameframe.contentWindow.document.getElementById("myDropdown")
+	if(dropdowns.classList.contains('show')) {
+		dropdowns.classList.remove("show");
+	}
+	else{
+		dropdowns.classList.add("show");
+	}
+
+	console.log(dropdowns);
 }
