@@ -1,6 +1,3 @@
-var newDivWrapper = document.createElement('div');
-newDivWrapper.id = "dropdown";
-
 // search bar by Raamyy and xenon
 function createSearch(){
 	var gameframe = document.getElementsByClassName("gameframe")[0];
@@ -48,15 +45,6 @@ function createSearch(){
 	button.innerHTML = "Filter By Country";
 	button.id = "searchRoomByCountry"
 	button.className = "dropbtn";
-	button.addEventListener('click', function() {
-		var dropDownContent = gameframe.contentWindow.document.getElementById("dropdown-content");
-		if(dropDownContent.style.display == "none"){
-			dropDownContent.style.display = "block";
-		}
-		else{
-			dropDownContent.style.display = "none";
-		}
-	}, false);
 	button.className =  "dropdown";
 	button.style.width = "25%";
 
@@ -65,6 +53,9 @@ function createSearch(){
 	style.type = 'text/css';
 	style.href = chrome.extension.getURL("css/filter_button.css");
 	gameframe.contentWindow.document.head.appendChild(style);
+
+	var newDivWrapper = document.createElement('div');
+	newDivWrapper.id = "dropdown";
 
 	insertPos = dialog.querySelector('h1').nextElementSibling;
 	insertPos.parentNode.insertBefore(newDivWrapper, insertPos.nextElementSibling);
@@ -127,6 +118,11 @@ function updateAvailableCountries(){
 
 	var unorderedList = document.createElement("ul");
 
+	var allCountriesList = document.createElement("li");
+	allCountriesList.innerHTML = "All";
+	allCountriesList.onclick = selectedListElement;
+	unorderedList.appendChild(allCountriesList);
+
 	for (const code of countryCodes) {
 	  var list = document.createElement("li");
 	  var anchor = document.createElement("a");
@@ -159,6 +155,7 @@ function filterByCountry(requestedCountryCode){
     var roomTable = dialog.querySelectorAll("[data-hook='list']")[0]
     var totalNumberOfPlayers = 0;
 	var totalNumberOfRooms = 0;
+	var allCountries = "All";
 
     for(room of roomTable.rows) {
         var roomName = room.querySelectorAll("[data-hook='name']")[0].innerText;
@@ -175,7 +172,8 @@ function filterByCountry(requestedCountryCode){
 			return terms.split(' ').every(x => roomName.includes(x));
 		}
 		
-		if ((searchTerms.some(x => myIncl(roomName, x) || myIncl(roomName.replace(/\s/g,''), x)) || !searchTerms.length) && playerTest && requestedCountryCode == countryCode) {
+		if ((searchTerms.some(x => myIncl(roomName, x) || myIncl(roomName.replace(/\s/g,''), x)) || !searchTerms.length) && playerTest 
+			&& (requestedCountryCode == countryCode || requestedCountryCode == allCountries)) {
 			room.hidden = false;
 			totalNumberOfPlayers += parseInt(roomNumPlayers);
 			totalNumberOfRooms++;
