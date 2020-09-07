@@ -6,8 +6,17 @@
   display: inline;
 }
 
-#dropdown-content{
+#dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+#dropdown-content {
+  display: none;
   position: absolute;
-  overflow:hidden; 
-  overflow-y:scroll;
+  background-color: #1A2125;
+  min-width: 100%;
+  z-index: 1;
+  max-height:200px;
+  overflow-y:auto;
 }

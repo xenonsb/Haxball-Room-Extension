@@ -1,5 +1,5 @@
 var newDivWrapper = document.createElement('div');
-newDivWrapper.className = "dropdown";
+newDivWrapper.id = "dropdown";
 
 // search bar by Raamyy and xenon
 function createSearch(){
@@ -48,18 +48,17 @@ function createSearch(){
 	button.innerHTML = "Filter By Country";
 	button.id = "searchRoomByCountry"
 	button.className = "dropbtn";
-	button.style.width = "25%";
-	button.style.position = "relative";
 	button.addEventListener('click', function() {
 		var dropDownContent = gameframe.contentWindow.document.getElementById("dropdown-content");
 		if(dropDownContent.style.display == "none"){
-			console.log("visible");
 			dropDownContent.style.display = "block";
 		}
 		else{
 			dropDownContent.style.display = "none";
 		}
 	}, false);
+	button.className =  "dropdown";
+	button.style.width = "25%";
 
 	var style = document.createElement('link');
 	style.rel = 'stylesheet';
@@ -69,8 +68,8 @@ function createSearch(){
 
 	insertPos = dialog.querySelector('h1').nextElementSibling;
 	insertPos.parentNode.insertBefore(newDivWrapper, insertPos.nextElementSibling);
+	insertPos.parentNode.insertBefore(searchExample, insertPos.nextElementSibling);
 
-	newDivWrapper.appendChild(searchExample);
 	newDivWrapper.appendChild(input);
 	newDivWrapper.appendChild(button);
 }
@@ -130,13 +129,20 @@ function updateAvailableCountries(){
 
 	for (const code of countryCodes) {
 	  var list = document.createElement("li");
-	  var divItem = document.createElement("div");
-	  list.href = "#";
-	  divItem.className = "flagico f-" + code;
+	  var anchor = document.createElement("a");
+	  var icon = document.createElement("i");
+	  icon.className = "flagico f-" + code;
 	  list.innerHTML = code.charAt(0).toUpperCase() + code.slice(1);
-	  list.appendChild(divItem);
+	  list.onclick = selectedListElement;
+	  anchor.dataset.target = code.charAt(0).toUpperCase() + code.slice(1);
+	  anchor.appendChild(icon);
+	  list.appendChild(anchor);
 	  unorderedList.appendChild(list);
 	}
 	dropDownDiv.appendChild(unorderedList);
 	button.appendChild(dropDownDiv);
+}
+
+function selectedListElement() {
+    console.log(this.innerHTML)
 }
