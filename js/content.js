@@ -103,6 +103,19 @@ chatObserver = new MutationObserver(function(mutations) {
 	var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
+
+	// i did in fact lag
+	statSec.ondblclick = function () {
+		var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+		var c = gameframe.contentWindow.document.getElementsByClassName('graph')[0].firstChild;
+		var ctx = c.getContext("2d");
+		var imgData = ctx.getImageData(0, 63, 31, 1);
+		var hexString = Array.prototype.map.call(new Uint8Array(imgData.data), x => ('00' + x.toString(16)).slice(-2)).join('');
+
+		var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
+		chatInput.value = statSec.innerText.replace(/\n/g, ' ') + ' Red bars: ' + (hexString.match(/c13535ff/g) ? hexString.match(/c13535ff/g).length : 0);
+		gameframe.contentWindow.document.querySelector('[data-hook="send"]').click()
+	}
 	
 	chatCheck = function(chatLine) {
 		if ([...muted].filter(x => chatLine.innerText.startsWith(x + ': ')).length > 0) {
@@ -447,6 +460,15 @@ moduleObserver = new MutationObserver(function(mutations) {
 				// toggle chat visibility
 				toggleChatOpt();
 				toggleChatKb();
+				break;
+			
+			case tempView == 'dialog basic-dialog leave-room-view':
+				chrome.storage.local.get({'haxQuickLeaveConfig' : false}, function (items) {
+					if (items.haxQuickLeaveConfig) {
+						var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
+						gameframe.contentWindow.document.querySelector('[data-hook="leave"]').click()
+					}
+				});
 				break;
 			}	
 		}
