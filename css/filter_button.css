@@ -1,0 +1,13 @@
+.hide{
+  display: none;
+}
+
+.show{
+  display: inline;
+}
+
+#dropdown-content{
+  position: absolute;
+  overflow:hidden; 
+  overflow-y:scroll;
+}

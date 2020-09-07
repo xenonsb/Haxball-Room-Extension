@@ -26,7 +26,7 @@ function createSearch(){
 	});
 	input.placeholder = "Term1 Term2+Term3/RoomMax - Search bar by Raamyy and xenon";
 	input.autocomplete = "off";
-	input.style.width = "70%";
+	input.style.width = "75%";
 	
 	input.oninput = function(e) {
 		if(e.keyCode === 27) { input.value = ''; }
@@ -48,15 +48,26 @@ function createSearch(){
 	button.innerHTML = "Filter By Country";
 	button.id = "searchRoomByCountry"
 	button.className = "dropbtn";
-	button.style.width = "30%";
+	button.style.width = "25%";
+	button.style.position = "relative";
+	button.addEventListener('click', function() {
+		var dropDownContent = gameframe.contentWindow.document.getElementById("dropdown-content");
+		if(dropDownContent.style.display == "none"){
+			console.log("visible");
+			dropDownContent.style.display = "block";
+		}
+		else{
+			dropDownContent.style.display = "none";
+		}
+	}, false);
 
 	var style = document.createElement('link');
 	style.rel = 'stylesheet';
 	style.type = 'text/css';
-	style.href = chrome.extension.getURL('css/filter_button.css');
+	style.href = chrome.extension.getURL("css/filter_button.css");
+	gameframe.contentWindow.document.head.appendChild(style);
 
 	insertPos = dialog.querySelector('h1').nextElementSibling;
-	insertPos.appendChild(style)
 	insertPos.parentNode.insertBefore(newDivWrapper, insertPos.nextElementSibling);
 
 	newDivWrapper.appendChild(searchExample);
@@ -113,10 +124,9 @@ function updateAvailableCountries(){
 	countryCodes = Array.from(uniqueFlags).sort();
 	var button = gameframe.contentWindow.document.getElementById("searchRoomByCountry");
 	var dropDownDiv = document.createElement("div");
-	dropDownDiv.className = "dropdown-content";
-	dropDownDiv.classList.add("hidden");
+	dropDownDiv.id = "dropdown-content";
 
-	console.log(countryCodes);
+	var unorderedList = document.createElement("ul");
 
 	for (const code of countryCodes) {
 	  var list = document.createElement("li");
@@ -125,22 +135,8 @@ function updateAvailableCountries(){
 	  divItem.className = "flagico f-" + code;
 	  list.innerHTML = code.charAt(0).toUpperCase() + code.slice(1);
 	  list.appendChild(divItem);
-	  dropDownDiv.appendChild(list);
+	  unorderedList.appendChild(list);
 	}
+	dropDownDiv.appendChild(unorderedList);
 	button.appendChild(dropDownDiv);
-}
-
-
-/* When the user clicks on the button, 
-toggle between hiding and showing the dropdown content */
-function buttonClick() {
-	var dropdowns = gameframe.contentWindow.document.getElementById("myDropdown")
-	if(dropdowns.classList.contains('show')) {
-		dropdowns.classList.remove("show");
-	}
-	else{
-		dropdowns.classList.add("show");
-	}
-
-	console.log(dropdowns);
 }
