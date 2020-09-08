@@ -72,7 +72,7 @@ function searchForRoom() {
 	var input = gameframe.contentWindow.document.getElementById('searchRoom');
 	var searchRoom = input.value.toLowerCase();
 	chrome.storage.local.set({'haxRoomSearchTerm': input.value}, function (obj) { });
-
+	var allCountries = "All";
 	var requestedCountryCode = window.localStorage.getItem('haxRoomCountrySearchTerm');
 
     var roomTable = dialog.querySelectorAll("[data-hook='list']")[0]
@@ -93,8 +93,11 @@ function searchForRoom() {
 		function myIncl(roomName, terms) {
 			return terms.split(' ').every(x => roomName.includes(x));
 		}
-		
-		console.log(countryCode, requestedCountryCode);
+
+		if(requestedCountryCode == allCountries){
+			countryCode = allCountries;
+		}
+
 		if ((searchTerms.some(x => myIncl(roomName, x) || myIncl(roomName.replace(/\s/g,''), x)) || !searchTerms.length) && playerTest 
 			&& countryCode == requestedCountryCode) {
 			room.hidden = false;

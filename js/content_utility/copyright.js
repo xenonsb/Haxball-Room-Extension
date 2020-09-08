@@ -5,6 +5,6 @@ function copyright() {
 	gitLink.target = 'blank';
 	gitLink.innerText = 'Haxball All-in-one Tool version ' + chrome.runtime.getManifest().version;
 	copyright.append(gitLink);
-	copyright.append(document.createElement('br'), 'Press the Add-on button for options', document.createElement('br'), 'By xenon, thanks to Raamyy and Pacific');
+	copyright.append(document.createElement('br'), 'Press the Add-on button for options', document.createElement('br'), 'By xenon, Raamyy, Pacific and Mirage');
 	return copyright
 }
