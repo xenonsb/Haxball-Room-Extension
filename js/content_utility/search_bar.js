@@ -74,7 +74,9 @@ function searchForRoom() {
 	chrome.storage.local.set({'haxRoomSearchTerm': input.value}, function (obj) { });
 	var allCountries = "All";
 	var requestedCountryCode = window.localStorage.getItem('haxRoomCountrySearchTerm');
-
+	/*var requestedCountryCode = allCountries;
+	requestedCountryCode = await getLocalStorageValue('haxRoomCountrySearchTerm');
+	console.log(requestedCountryCode);*/
     var roomTable = dialog.querySelectorAll("[data-hook='list']")[0]
     var totalNumberOfPlayers = 0;
 	var totalNumberOfRooms = 0;
@@ -130,9 +132,11 @@ function updateAvailableCountries(){
 	var unorderedList = document.createElement("ul");
 
 	var allCountriesList = document.createElement("li");
-	allCountriesList.innerHTML = "All";
-	allCountriesList.onclick = selectedListElement;
+	var allCountriesAnchor = document.createElement("a");
+	allCountriesAnchor.text = "All"
+	allCountriesAnchor.onclick = selectedAnchorElement;
 	allCountriesList.id = "searchListByCountry";
+	allCountriesList.appendChild(allCountriesAnchor);
 	unorderedList.appendChild(allCountriesList);
 
 	for (const code of countryCodes) {
@@ -140,12 +144,11 @@ function updateAvailableCountries(){
 	  var anchor = document.createElement("a");
 	  var icon = document.createElement("i");
 	  icon.className = "flagico f-" + code;
-	  list.innerHTML = code.charAt(0).toUpperCase() + code.slice(1);
-	  list.innerText = code;
-	  list.onclick = selectedListElement;
 	  list.id = "searchListByCountry";
+	  anchor.text = code;
+	  anchor.onclick = selectedAnchorElement;
 	  anchor.dataset.target = code.charAt(0).toUpperCase() + code.slice(1);
-	  anchor.appendChild(icon);
+	  list.appendChild(icon);
 	  list.appendChild(anchor);
 	  unorderedList.appendChild(list);
 	}
@@ -153,9 +156,12 @@ function updateAvailableCountries(){
 	button.appendChild(dropDownDiv);
 }
 
-function selectedListElement() {
-	var countryCode = this.innerText;
+function selectedAnchorElement() {
+	var countryCode = this.text;
 	window.localStorage.setItem('haxRoomCountrySearchTerm', countryCode);
+	//chrome.storage.local.set({'haxRoomCountrySearchTerm': countryCode}, function (obj) { });
 	searchForRoom();
 
 }
+
+
