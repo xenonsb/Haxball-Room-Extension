@@ -23,7 +23,8 @@ const defaultSettings = {
 	'haxShortcut':`{
 "/h1":"/handicap 100",
 "/e1":"/extrapolation 10"
-}`
+}`,
+	'haxQuickLeaveConfig': false
 
 }
 
@@ -36,7 +37,8 @@ const enableAllSettings = {
 	'haxTransChatConfig': true,
 	'haxViewModeConfig': true,
 	'haxRecordHotkey': true,
-	'haxShortcutConfig': true
+	'haxShortcutConfig': true,
+	'haxQuickLeaveConfig': true
 }
 
 const disableAllSettings = {
@@ -48,7 +50,8 @@ const disableAllSettings = {
 	'haxTransChatConfig': false,
 	'haxViewModeConfig': false,
 	'haxRecordHotkey': false,
-	'haxShortcutConfig': false
+	'haxShortcutConfig': false,
+	'haxQuickLeaveConfig': false
 }
 
 chrome.storage.local.get(defaultSettings, function (items) {
