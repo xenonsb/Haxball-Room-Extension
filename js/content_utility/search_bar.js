@@ -139,18 +139,20 @@ function updateAvailableCountries(){
 	allCountriesList.appendChild(allCountriesAnchor);
 	unorderedList.appendChild(allCountriesList);
 
-	for (const code of countryCodes) {
-	  var list = document.createElement("li");
-	  var anchor = document.createElement("a");
-	  var icon = document.createElement("i");
-	  icon.className = "flagico f-" + code;
-	  list.id = "searchListByCountry";
-	  anchor.text = code;
-	  anchor.onclick = selectedAnchorElement;
-	  anchor.dataset.target = code.charAt(0).toUpperCase() + code.slice(1);
-	  list.appendChild(icon);
-	  list.appendChild(anchor);
-	  unorderedList.appendChild(list);
+	for (var code of countryCodes) {
+		if(code.length > 0){
+			var list = document.createElement("li");
+			var anchor = document.createElement("a");
+			var icon = document.createElement("i");
+			icon.className = "flagico f-" + code;
+			list.id = "searchListByCountry";
+			anchor.text = code;
+			anchor.onclick = selectedAnchorElement;
+			anchor.dataset.target = code.charAt(0).toUpperCase() + code.slice(1);
+			list.appendChild(icon);
+			list.appendChild(anchor);
+			unorderedList.appendChild(list);
+		}
 	}
 	dropDownDiv.appendChild(unorderedList);
 	button.appendChild(dropDownDiv);
