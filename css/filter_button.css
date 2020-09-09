@@ -1,13 +1,11 @@
 #dropdown-content {
   display: none;
   position: absolute;
-  background-color: #1A2125;
-  min-width: 100%;
+  background-color: #3a4952;
+  min-width: 80%;
   z-index: 1;
   max-height: 300px;
-  overflow-y:auto;
+  overflow-y:scroll;
 }
-
-#dropdown-content a:hover {background-color: #ddd;}
 
 .dropdown:hover #dropdown-content {display: block;}
