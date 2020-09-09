@@ -8,7 +8,8 @@
       {
         "matches": [
           "https://*.haxball.com/play*"
-        ],
+		],
+		"css": ["css/filter_button.css" ],
 		"js": ["js/content_utility/copyright.js", "js/content_utility/search_bar.js", "js/content_utility/auto_join.js",
 			"js/content_utility/admin_kick_or_ban.js", "js/content_utility/toggle_chat.js", "js/content_utility/addon_settings.js",
 			"js/content_utility/transparent_chat.js", "js/content_utility/chat_properties.js", "js/content_utility/emojis.js",
@@ -31,7 +32,9 @@
 	},
 	"web_accessible_resources": [
 		"emoji_lookup.html",
-		"js/emoji_lookup.js"
+		"js/emoji_lookup.js",
+		"css/filter_button.css"
+		
 	],
 	"permissions": [
           "notifications",
