@@ -179,13 +179,11 @@ chatObserver = new MutationObserver( function(mutations) {
 							senderName = "";
 						 	toBeTranslatedText = chatLine.innerText;
 						}
-						let translation = translate(toBeTranslatedText);
-						translation.then(function(translationResult) {
-							if (translationResult != undefined) {
-								chatLine.innerText = senderName + ': ' + translationResult.translation + ' (translated from: ' + translationResult.lang + ')';
-								chatLine.translation = chatLine.innerText;
-							}
-						});
+						let translationResult = translate(toBeTranslatedText);
+						if (translationResult) {
+							chatLine.innerText = senderName + ': ' + translationResult.translation + ' (translated from: ' + translationResult.lang + ')';
+							chatLine.translation = chatLine.innerText;
+						}
 					}
 					chatLine.state = 'translated';
 					translateBtn.innerText = 'Show Original';
@@ -536,8 +534,14 @@ init.then(function(value) {
 
 const TRANSLATE_API = "https://hax-translate.herokuapp.com/";
 function translate(text){
-	var transalte_result = await postData(TRANSLATE_API, {text: text});
-	return transalte_result;
+	try {
+		var transalte_result = await postData(TRANSLATE_API, {text: text});
+		return transalte_result;
+	}
+	catch(error) {
+		console.log(error);
+		return null;
+	}
 }
 
 async function postData(url = '', data = {}) {
