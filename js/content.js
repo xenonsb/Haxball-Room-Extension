@@ -168,8 +168,17 @@ chatObserver = new MutationObserver( function(mutations) {
 				else if(chatLine.state == 'original'){
 					if(chatLine.translation) chatLine.innerText = chatLine.translation;
 					else {
-						let senderName = chatLine.innerText.split(":")[0];
-						let toBeTranslatedText = chatLine.innerText.split(': ').slice(1).join('');
+						let senderName;
+						let toBeTranslatedText;
+						if(chatLine.originalChatLine.indexOf(':') > -1) {
+							// player message
+							senderName = chatLine.innerText.split(":")[0];
+						 	toBeTranslatedText = chatLine.innerText.split(': ').slice(1).join('');
+						}else {
+							// bot message (no sender)
+							senderName = "";
+						 	toBeTranslatedText = chatLine.innerText;
+						}
 						let translation = translate(toBeTranslatedText);
 						translation.then(function(translationResult) {
 							if (translationResult != undefined) {
