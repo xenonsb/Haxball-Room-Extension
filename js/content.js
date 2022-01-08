@@ -96,14 +96,14 @@ function record(gameview = true) {
 	}
 }
 
-chatObserver = new MutationObserver(function(mutations) {
+chatObserver = new MutationObserver( function(mutations) {
 	var candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.tagName == 'P');
 	var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
 	var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 	var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
-
+	
 	// i did in fact lag
 	statSec.ondblclick = function () {
 		var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
@@ -141,8 +141,50 @@ chatObserver = new MutationObserver(function(mutations) {
 					}
 				}
 		});
-		
+
 		chatLine.innerHTML = linkify(chatLine.innerHTML);
+
+		// translation
+		if(!chatLine.processed){
+			let chatRowDiv = document.createElement('div');
+			chatRowDiv.className = 'chat-row';
+			chatLine.parentNode.appendChild(chatRowDiv);
+			chatLine.processed = true;
+			chatRowDiv.appendChild(chatLine);
+			chatLine.style.display = 'inline-block';
+			chatLine.style.width = '75%';
+
+			let translateBtn= document.createElement('button');
+			translateBtn.innerText = 'Translate';
+			translateBtn.className = 'translate-btn';
+			chatLine.originalChatLine = chatLine.innerText;
+			chatLine.state = 'original';
+			translateBtn.addEventListener('click', function(e) {
+				if(chatLine.state == 'translated'){
+					chatLine.innerText = chatLine.originalChatLine;
+					chatLine.state = 'original';
+					translateBtn.innerText = 'Translate';
+				}
+				else if(chatLine.state == 'original'){
+					if(chatLine.translation) chatLine.innerText = chatLine.translation;
+					else {
+						let senderName = chatLine.innerText.split(":")[0];
+						let toBeTranslatedText = chatLine.innerText.split(': ').slice(1).join('');
+						let translation = translate(toBeTranslatedText);
+						translation.then(function(translationResult) {
+							if (translationResult != undefined) {
+								chatLine.innerText = senderName + ': ' + translationResult.translation + ' (translated from: ' + translationResult.lang + ')';
+								chatLine.translation = chatLine.innerText;
+							}
+						});
+					}
+					chatLine.state = 'translated';
+					translateBtn.innerText = 'Show Original';
+				}
+			});
+			chatRowDiv.appendChild(translateBtn);
+		}
+		
 
 		// right click to tag
 		chatLine.oncontextmenu = function () {
@@ -190,6 +232,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 	if (candidates.length == 1) {
 		var tempView = candidates[0].className;
 		console.log(tempView);
+		if(tempView == 'chat-row') return;
 		switch(true) {
 			case tempView == "choose-nickname-view":
 				nickWait = waitForElement('[data-hook="input"]');
@@ -480,3 +523,23 @@ init.then(function(value) {
 	currentView = value.parentNode;
 	moduleObserver.observe(currentView, {childList: true, subtree: true});
 });
+
+
+const TRANSLATE_API = "https://hax-translate.herokuapp.com/";
+function translate(text){
+	var transalte_result = await postData(TRANSLATE_API, {text: text});
+	return transalte_result;
+}
+
+async function postData(url = '', data = {}) {
+	// Default options are marked with *
+	const response = await fetch(url, {
+	  method: 'POST',
+	  cache: 'no-cache', 
+	  headers: {
+		'Content-Type': 'application/json'
+	  },
+	  body: JSON.stringify(data) 
+	});
+	return response.json(); 
+  }
