@@ -53,7 +53,7 @@ function createSearch(){
 	var style = document.createElement('link');
 	style.rel = 'stylesheet';
 	style.type = 'text/css';
-	style.href = chrome.extension.getURL("css/filter_button.css");
+	style.href = chrome.runtime.getURL("css/filter_button.css");
 	gameframe.contentWindow.document.head.appendChild(style);
 
 	var newDivWrapper = document.createElement('div');
