@@ -533,7 +533,7 @@ init.then(function(value) {
 });
 
 
-const TRANSLATE_API = "https://hax-translate.herokuapp.com/";
+const TRANSLATE_API = "https://joyous-jay-trench-coat.cyclic.app/haxball/translate";
 function translate(text){
 	try {
 		var transalte_result = postData(TRANSLATE_API, {text: text});
