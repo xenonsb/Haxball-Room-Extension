@@ -157,6 +157,18 @@ chatObserver = new MutationObserver( function(mutations) {
 			let translateBtn= document.createElement('button');
 			translateBtn.innerText = 'Translate';
 			translateBtn.className = 'translate-btn';
+
+			// style translate btn
+			translateBtn.style.backgroundColor = "#244967";
+			translateBtn.style.color = "#fff";
+			translateBtn.style.padding = "2px 15px";
+			translateBtn.style.margin = "1px";
+			translateBtn.style.border = "0";
+			translateBtn.style.borderRadius = "5px";
+			translateBtn.style.fontFamily = `"Open Sans",sans-serif`;
+			translateBtn.style.fontWeight = `700`;
+			translateBtn.style.fontSize = `15px`;
+
 			chatLine.originalChatLine = chatLine.innerText;
 			chatLine.state = 'original';
 			translateBtn.addEventListener('click', function(e) {
