@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Haxball All-in-one Tool",
-	"version": "0.4.5",
+	"version": "0.4.6",
 	"author": "xenon",
 	"description": "Tools for searching rooms, auto refreshing and joining rooms, admin kick/ban shortcuts, and local-muting of other players",
 	"content_scripts": [
@@ -22,6 +22,7 @@
 				"js/content_utility/transparent_chat.js",
 				"js/content_utility/chat_properties.js",
 				"js/content_utility/emojis.js",
+				"js/content_utility/translate_disclaimer.js",
 				"js/content.js"
 			],
 			"run_at": "document_idle"

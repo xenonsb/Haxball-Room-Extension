@@ -8,6 +8,8 @@ To do so, download all the files within this repository into a folder, and follo
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
+**New in version 0.4.6**: Added translate button to translate chat messages. Currently only translations to English are supported.
+
 **New in version 0.3.8**: Right click to tag! Within chat log, you can right click someone's chat message to @Mention them. Also, you can also right click their name from the room player view to @Mention them.
 
 **New in version 0.3.4**: New options page and text expansion macros! In light of the bot-hosted rooms nowadays with a bunch of commands, why not have text expansions? For instance, if you constantly need to type "!admin" to chat, you can assign it as ".ad" and that will automatically expand to "!admin". Also, I've made a few fixes to the record shortcut (press R to record) and improved the add-on settings changes in-game. To configure text shortcuts, go to the add-on options and press configure shortcuts.
@@ -65,3 +67,5 @@ Haxball All-in-one Tool adds a few time-saving features to the existing HTML5 ve
 **✓ Record hotkey R**: when in game or in a lobby, press R to begin/stop recording
 
 **✓ Text expansion macros**: for quicker typing of constantly used commands/terms, you can now do so! The options for this is tucked into the add-on settings, or can be accessed through extension menu/add-ons menu under options/preferences.
+
+**✓ Chat translation**: instantly translate chat messages to easily understand messages from other languages.

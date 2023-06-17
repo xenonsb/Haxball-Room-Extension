@@ -96,14 +96,14 @@ function record(gameview = true) {
 	}
 }
 
-chatObserver = new MutationObserver(function(mutations) {
+chatObserver = new MutationObserver( function(mutations) {
 	var candidates = mutations.flatMap(x => Array.from(x.addedNodes)).filter(x => x.tagName == 'P');
 	var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
 	var bottomSec = gameframe.contentWindow.document.getElementsByClassName('bottom-section')[0];
 	var statSec = gameframe.contentWindow.document.getElementsByClassName('stats-view')[0];
 	var chatInput = gameframe.contentWindow.document.querySelector('[data-hook="input"]');
 	var chatLog = gameframe.contentWindow.document.querySelector('[data-hook="log"]');
-
+	
 	// i did in fact lag
 	statSec.ondblclick = function () {
 		var gameframe = document.documentElement.getElementsByClassName("gameframe")[0];
@@ -141,8 +141,70 @@ chatObserver = new MutationObserver(function(mutations) {
 					}
 				}
 		});
-		
+
 		chatLine.innerHTML = linkify(chatLine.innerHTML);
+
+		// translation
+		if(!chatLine.processed){
+			let chatRowDiv = document.createElement('div');
+			chatRowDiv.className = 'chat-row';
+			chatLine.parentNode.appendChild(chatRowDiv);
+			chatLine.processed = true;
+			chatRowDiv.appendChild(chatLine);
+			chatLine.style.display = 'inline-block';
+			chatLine.style.width = '75%';
+
+			let translateBtn= document.createElement('button');
+			translateBtn.innerText = 'Translate';
+			translateBtn.className = 'translate-btn';
+
+			// style translate btn
+			translateBtn.style.backgroundColor = "#244967";
+			translateBtn.style.color = "#fff";
+			translateBtn.style.padding = "2px 15px";
+			translateBtn.style.margin = "1px";
+			translateBtn.style.border = "0";
+			translateBtn.style.borderRadius = "5px";
+			translateBtn.style.fontFamily = `"Open Sans",sans-serif`;
+			translateBtn.style.fontWeight = `700`;
+			translateBtn.style.fontSize = `15px`;
+
+			chatLine.originalChatLine = chatLine.innerText;
+			chatLine.state = 'original';
+			translateBtn.addEventListener('click', function(e) {
+				if(chatLine.state == 'translated'){
+					chatLine.innerText = chatLine.originalChatLine;
+					chatLine.state = 'original';
+					translateBtn.innerText = 'Translate';
+				}
+				else if(chatLine.state == 'original'){
+					if(chatLine.translation) chatLine.innerText = chatLine.translation;
+					else {
+						let senderName;
+						let toBeTranslatedText;
+						if(chatLine.originalChatLine.indexOf(':') > -1) {
+							// player message
+							senderName = chatLine.innerText.split(":")[0];
+						 	toBeTranslatedText = chatLine.innerText.split(': ').slice(1).join('');
+						}else {
+							// bot message (no sender)
+							senderName = "";
+						 	toBeTranslatedText = chatLine.innerText;
+						}
+					translate(toBeTranslatedText).then(translationResult => {
+						if (translationResult) {
+							chatLine.innerText = senderName + ': ' + translationResult.translation + ' (translated from: ' + translationResult.lang + ')';
+							chatLine.translation = chatLine.innerText;
+						}
+					});
+					}
+					chatLine.state = 'translated';
+					translateBtn.innerText = 'Show Original';
+				}
+			});
+			chatRowDiv.appendChild(translateBtn);
+		}
+		
 
 		// right click to tag
 		chatLine.oncontextmenu = function () {
@@ -190,6 +252,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 	if (candidates.length == 1) {
 		var tempView = candidates[0].className;
 		console.log(tempView);
+		if(tempView == 'chat-row') return;
 		switch(true) {
 			case tempView == "choose-nickname-view":
 				nickWait = waitForElement('[data-hook="input"]');
@@ -259,7 +322,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				inGame.then(function () {
 					toggleChatOpt();
 					toggleChatKb();
-					
+					showTranslateDisclaimer();
 					chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
 						if (items.haxTransChatConfig) { 
@@ -480,3 +543,30 @@ init.then(function(value) {
 	currentView = value.parentNode;
 	moduleObserver.observe(currentView, {childList: true, subtree: true});
 });
+
+
+const TRANSLATE_API = "https://joyous-jay-trench-coat.cyclic.app/haxball/translate";
+function translate(text){
+	try {
+		var transalte_result = postData(TRANSLATE_API, {text: text});
+		return transalte_result;
+	}
+	catch(error) {
+		console.log(error);
+		return null;
+	}
+}
+
+async function postData(url = '', data = {}) {
+	// Default options are marked with *
+	const response = await fetch(url, {
+	  method: 'POST',
+	  cache: 'no-cache', 
+	  cors: 'no-cors',
+	  headers: {
+		'Content-Type': 'application/json'
+	  },
+	  body: JSON.stringify(data) 
+	});
+	return response.json(); 
+  }
