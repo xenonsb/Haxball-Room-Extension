@@ -322,7 +322,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				inGame.then(function () {
 					toggleChatOpt();
 					toggleChatKb();
-					
+					showTranslateDisclaimer();
 					chrome.storage.local.get({'haxTransChatConfig' : false},
 					function (items) {
 						if (items.haxTransChatConfig) { 
