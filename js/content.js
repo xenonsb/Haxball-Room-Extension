@@ -143,68 +143,73 @@ chatObserver = new MutationObserver( function(mutations) {
 		});
 
 		chatLine.innerHTML = linkify(chatLine.innerHTML);
+		
+		chrome.storage.local.get("haxChatTranslation", (items) => {
+			if (items.haxChatTranslation) {
+				// translation
+				if (!chatLine.processed) {
+					let chatRowDiv = document.createElement('div');
+					chatRowDiv.className = 'chat-row';
+					chatLine.parentNode.appendChild(chatRowDiv);
+					chatLine.processed = true;
+					chatRowDiv.appendChild(chatLine);
+					chatLine.style.display = 'inline-block';
+					chatLine.style.width = '75%';
 
-		// translation
-		if(!chatLine.processed){
-			let chatRowDiv = document.createElement('div');
-			chatRowDiv.className = 'chat-row';
-			chatLine.parentNode.appendChild(chatRowDiv);
-			chatLine.processed = true;
-			chatRowDiv.appendChild(chatLine);
-			chatLine.style.display = 'inline-block';
-			chatLine.style.width = '75%';
-
-			let translateBtn= document.createElement('button');
-			translateBtn.innerText = 'Translate';
-			translateBtn.className = 'translate-btn';
-
-			// style translate btn
-			translateBtn.style.backgroundColor = "#244967";
-			translateBtn.style.color = "#fff";
-			translateBtn.style.padding = "2px 15px";
-			translateBtn.style.margin = "1px";
-			translateBtn.style.border = "0";
-			translateBtn.style.borderRadius = "5px";
-			translateBtn.style.fontFamily = `"Open Sans",sans-serif`;
-			translateBtn.style.fontWeight = `700`;
-			translateBtn.style.fontSize = `15px`;
-
-			chatLine.originalChatLine = chatLine.innerText;
-			chatLine.state = 'original';
-			translateBtn.addEventListener('click', function(e) {
-				if(chatLine.state == 'translated'){
-					chatLine.innerText = chatLine.originalChatLine;
-					chatLine.state = 'original';
+					let translateBtn = document.createElement('button');
 					translateBtn.innerText = 'Translate';
-				}
-				else if(chatLine.state == 'original'){
-					if(chatLine.translation) chatLine.innerText = chatLine.translation;
-					else {
-						let senderName;
-						let toBeTranslatedText;
-						if(chatLine.originalChatLine.indexOf(':') > -1) {
-							// player message
-							senderName = chatLine.innerText.split(":")[0];
-						 	toBeTranslatedText = chatLine.innerText.split(': ').slice(1).join('');
-						}else {
-							// bot message (no sender)
-							senderName = "";
-						 	toBeTranslatedText = chatLine.innerText;
+					translateBtn.className = 'translate-btn';
+
+					// style translate btn
+					translateBtn.style.backgroundColor = "#244967";
+					translateBtn.style.color = "#fff";
+					translateBtn.style.padding = "2px 15px";
+					translateBtn.style.margin = "1px";
+					translateBtn.style.border = "0";
+					translateBtn.style.borderRadius = "5px";
+					translateBtn.style.fontFamily = `"Open Sans",sans-serif`;
+					translateBtn.style.fontWeight = `700`;
+					translateBtn.style.fontSize = `15px`;
+
+					chatLine.originalChatLine = chatLine.innerText;
+					chatLine.state = 'original';
+					translateBtn.addEventListener('click', function (e) {
+						if (chatLine.state == 'translated') {
+							chatLine.innerText = chatLine.originalChatLine;
+							chatLine.state = 'original';
+							translateBtn.innerText = 'Translate';
 						}
-					translate(toBeTranslatedText).then(translationResult => {
-						if (translationResult) {
-							chatLine.innerText = senderName + ': ' + translationResult.translation + ' (translated from: ' + translationResult.lang + ')';
-							chatLine.translation = chatLine.innerText;
+						else if (chatLine.state == 'original') {
+							if (chatLine.translation) chatLine.innerText = chatLine.translation;
+							else {
+								let senderName;
+								let toBeTranslatedText;
+								if (chatLine.originalChatLine.indexOf(':') > -1) {
+									// player message
+									senderName = chatLine.innerText.split(":")[0];
+									toBeTranslatedText = chatLine.innerText.split(': ').slice(1).join('');
+								} else {
+									// bot message (no sender)
+									senderName = "";
+									toBeTranslatedText = chatLine.innerText;
+								}
+								translate(toBeTranslatedText).then(translationResult => {
+									if (translationResult) {
+										chatLine.innerText = senderName + ': ' + translationResult.translation + ' (translated from: ' + translationResult.lang + ')';
+										chatLine.translation = chatLine.innerText;
+									}
+								});
+							}
+							chatLine.state = 'translated';
+							translateBtn.innerText = 'Show Original';
 						}
 					});
-					}
-					chatLine.state = 'translated';
-					translateBtn.innerText = 'Show Original';
+					chatRowDiv.appendChild(translateBtn);
 				}
-			});
-			chatRowDiv.appendChild(translateBtn);
-		}
-		
+
+			}
+		});
+
 
 		// right click to tag
 		chatLine.oncontextmenu = function () {

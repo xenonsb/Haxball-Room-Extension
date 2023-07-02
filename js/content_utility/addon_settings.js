@@ -2,7 +2,7 @@ function addonSettingsPopup(currentView) {
 	var addonSettings = document.createElement('div');
 	addonSettings.className = 'dialog settings-view';
 	addonSettings.style.display = 'none';
-	addonSettings.style.maxHeight = '550px';
+	addonSettings.style.maxHeight = '580px';
 
 	var addonSettingsHeader = document.createElement('h1');
 	addonSettingsHeader.innerText = 'Add-on Settings';
@@ -74,6 +74,7 @@ function addonSettingsPopup(currentView) {
 	addonSection.appendChild(configElem('haxMuteConfig',true,'Local mute'));
 	addonSection.appendChild(configElem('haxNotifConfig',false,'Game notifications'));
 	addonSection.appendChild(configElem('haxTransChatConfig',false,'Transparent chat (Pacific)'));
+	addonSection.appendChild(configElem('haxChatTranslation',false,'Chat translation (Raamyy)'));
 	addonSection.appendChild(sliderDiv);
 	addonSection.appendChild(configElem('haxViewModeConfig',false,'View-mode hotkeys'));
 	addonSection.appendChild(configElem('haxRecordHotkey',false,'Record hotkey R'));
