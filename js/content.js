@@ -141,8 +141,10 @@ chatObserver = new MutationObserver( function(mutations) {
 					}
 				}
 		});
-
-		chatLine.innerHTML = linkify(chatLine.innerHTML);
+		
+		if (!chatLine.processed) {
+			chatLine.innerHTML = linkify(chatLine.innerHTML);
+		}
 		
 		chrome.storage.local.get("haxChatTranslation", (items) => {
 			if (items.haxChatTranslation) {
@@ -209,8 +211,8 @@ chatObserver = new MutationObserver( function(mutations) {
 
 			}
 		});
-
-
+		
+		
 		// right click to tag
 		chatLine.oncontextmenu = function () {
 			if (chatLine.innerText.includes(':')) {
