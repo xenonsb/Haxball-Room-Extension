@@ -20,6 +20,7 @@ const defaultSettings = {
 	'haxViewModeConfig': false,
 	'haxRecordHotkey': false,
 	'haxShortcutConfig': false,
+	'haxChatTranslation': false,
 	'haxShortcut':`{
 "/h1":"/handicap 100",
 "/e1":"/extrapolation 10"
@@ -38,7 +39,8 @@ const enableAllSettings = {
 	'haxViewModeConfig': true,
 	'haxRecordHotkey': true,
 	'haxShortcutConfig': true,
-	'haxQuickLeaveConfig': true
+	'haxQuickLeaveConfig': true,
+	'haxChatTranslation': true
 }
 
 const disableAllSettings = {
@@ -51,7 +53,8 @@ const disableAllSettings = {
 	'haxViewModeConfig': false,
 	'haxRecordHotkey': false,
 	'haxShortcutConfig': false,
-	'haxQuickLeaveConfig': false
+	'haxQuickLeaveConfig': false,
+	'haxChatTranslation': false
 }
 
 chrome.storage.local.get(defaultSettings, function (items) {
@@ -110,6 +113,7 @@ restoreDef.onclick = function() {
 	haxViewModeConfig.checked = false,
 	haxRecordHotkey.checked = false,
 	haxShortcutConfig.checked = false,
+	haxChatTranslation.checked = false,
 	haxShortcut.value = '{"/h1":"/handicap 100","/e1":"/extrapolation 10"}'
 	chrome.storage.local.set(defaultSettings, function () {});
 }
