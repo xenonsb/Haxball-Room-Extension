@@ -8,6 +8,8 @@ To do so, download all the files within this repository into a folder, and follo
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
 
+**New in version 0.4.7**: Added ability for players to enable/disable the appearance of the translate button next to each message via the addon and shortcut settings.
+
 **New in version 0.4.6**: Added translate button to translate chat messages. Currently only translations to English are supported.
 
 **New in version 0.3.8**: Right click to tag! Within chat log, you can right click someone's chat message to @Mention them. Also, you can also right click their name from the room player view to @Mention them.
