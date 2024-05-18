@@ -1,12 +1,12 @@
 # Haxball All-in-one Tool
 
-**Side note**: I haven't been that active with updates lately, but hopefully I can push some semi-frequent updates :) - August 2020
-
 To do so, download all the files within this repository into a folder, and follow the instructions at [https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/](https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/) to locate manifest.json.
 
 **Chrome Web Store**: [https://chrome.google.com/webstore/detail/oobhbkpciiodddpiaknpdhccmdjnlkde](https://chrome.google.com/webstore/detail/oobhbkpciiodddpiaknpdhccmdjnlkde)
 
 **Firefox Addons**: [https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/](https://addons.mozilla.org/en-US/firefox/addon/haxball-all-in-one-tool/)
+
+**New in version 0.4.8**: Translation are working again and now able to to view the add on menu in a self hosted room. 
 
 **New in version 0.4.7**: Added ability for players to enable/disable the appearance of the translate button next to each message via the addon and shortcut settings.
 
