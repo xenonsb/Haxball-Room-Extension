@@ -39,7 +39,7 @@
 		"open_in_tab": true
 	},
 	"background": {
-		"service_worker": "js/background.js"
+		"scripts": ["js/background.js"]
 	},
 	"web_accessible_resources": [
 		{
@@ -56,5 +56,8 @@
 	"permissions": [
 		"notifications",
 		"storage"
+	],
+	"host_permissions": [
+		"https://*.haxball.com/*"
 	]
 }
