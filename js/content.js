@@ -302,7 +302,7 @@ moduleObserver = new MutationObserver(function(mutations) {
 				
 				break;
 				
-			case tempView == "game-view":
+			case tempView.includes("game-view"):
 				muted = new Set();
 				muteAllToggle = false;
 				chatWait = waitForElement('[data-hook="log"]');
