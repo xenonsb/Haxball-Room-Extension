@@ -552,7 +552,7 @@ init.then(function(value) {
 });
 
 
-const TRANSLATE_API = "https://joyous-jay-trench-coat.cyclic.app/haxball/translate";
+const TRANSLATE_API = "https://private-api-mkab.onrender.com/haxball/translate";
 function translate(text){
 	try {
 		var transalte_result = postData(TRANSLATE_API, {text: text});
